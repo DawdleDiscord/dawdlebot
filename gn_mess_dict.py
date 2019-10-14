@@ -9,7 +9,7 @@ gn_mess = {
 	"I hope your day has been good, and you did your best. If you don't think you did your best, well, I'm here to cheer you on, let's get some sleep and make tomorrow yours!!",
 	"Sleep well, go dawdle in dreamland. You are loved and deserve the rest, you beautiful human.",
 	"The dream faeries of dawdle are here to ensure that your rest and your dreams are as perfect and lovely as you are.",
-	"It's not like I hope you have sweet dreams tonight or anything..I only want you to be well rested so that I can compliment roast you more tomorrow",
+	"It's not like I hope you have sweet dreams tonight or anything..I only want you to be well rested so that I can ~~compliment~~ roast you more tomorrow",
 	"May the shadows take your nightmares \n and render them into narwhals \n through a mystical process \n known only to them \n Goodnight Friend \nSleep Well \n Knowing that \n You arent alone \n You are loved by many\n Drift of to dreamland now. Sleep",
 	"Goodnight my sweet and lovely friend. I hope you have the sweetest dreams and that your days are filled with sunshine and happiness because you deserve the best.",
 	"Sweet dreams! **(Disclaimer: If saint is in your dream, keep it PG, otherwise she is not responsible for dismemberment. Thank you.)**",
