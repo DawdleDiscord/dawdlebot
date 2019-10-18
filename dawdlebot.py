@@ -51,7 +51,7 @@ async def on_raw_reaction_add(payload):
 			await userM.add_roles(verifrole)
 			await userM.add_roles(dotRole)
 			await userM.remove_roles(unverifrole)
-			await userM.send("Thank you for verifying! You’ve successfully completed this process, you are now able to see the majority of the server. Please proceed to get some <#527307900662710297> and to post an <#514555898648330260>! No formats are necessary for introductions, just a little snippet will do. When you are done with both, type \"done\" (without the quotes) anywhere in the server.")
+			await userM.send("Thank you for verifying! You’ve successfully completed this process, you are now able to see the majority of the server. Please proceed to get some <#527307900662710297> and to post an <#514555898648330260>! No formats are necessary for introductions, just a little snippet will do. When you are done with both, type \"/done\" (without the quotes) anywhere in the server.")
 		elif str(verifEmoj) == '<:pinkno:609771973102534687>' and Ncross==2:
 			await userM.send("Sorry, but the pictures you provided do not follow our outlines as described in <#479407137060028449>. Please review and try again!")
 
@@ -156,6 +156,7 @@ async def on_message(message):
 
 	if message.channel and ("nini dawdle" in message.content.lower()):
 		await message.author.send(random.choice(gn_mess_dict.gn_mess['nini_mess']))
+
 
 
 	await bot.process_commands(message)
