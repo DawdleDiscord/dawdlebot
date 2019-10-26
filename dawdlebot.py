@@ -23,6 +23,8 @@ def get_server(guilds,server):
 async def on_ready():
 	dawdle = get_server(bot.guilds,'dawdle')
 	print(f'{bot.user} has connected to Discord!', f'{dawdle.name}(id: {dawdle.id})')
+	game = discord.Game("amer's true fave")
+	await bot.change_presence(status="amer's true fave",activity=game)
 
 @bot.event
 async def on_raw_reaction_add(payload):
@@ -182,6 +184,10 @@ async def cleanselfies(ctx,arg):
 	staffrole = dawdle.get_role(519616340940554270)
 	saintrole = dawdle.get_role(490249474619211838)
 	selfieChannel = dawdle.get_channel(514556004822941696)
+	herNSFWChannel = dawdle.get_channel(600720351684591646)
+	himNSFWChannel = dawdle.get_channel(600720380801449985)
+	themNSFWChannel = dawdle.get_channel(600720406902734858)
+
 	isStaff = False
 	for role in ctx.message.author.roles:
 		if	role == staffrole or role == saintrole:
@@ -191,8 +197,12 @@ async def cleanselfies(ctx,arg):
 		if arg == "all":
 			def is_member(message):
 				return not isinstance(message.author,discord.Member)
-			deleted = await selfieChannel.purge(limit=None,check=is_member)
-			await ctx.send(f'{ctx.message.author.mention} deleted {len(deleted)} selfies')
+			deletedSelfies = await selfieChannel.purge(limit=None,check=is_member)
+			deletedNSFWher = await herNSFWChannel.purge(limit=None,check=is_member)
+			deletedNSFWhim = await himNSFWChannel.purge(limit=None,check=is_member)
+			deletedNSFWthem = await themNSFWChannel.purge(limit=None,check=is_member)
+			numDelNSFW = len(deletedNSFWthem) + len(deletedNSFWhim) + len(deletedNSFWher)
+			await ctx.send(f'{ctx.message.author.mention} deleted {len(deletedSelfies)} selfies and {numDelNSFW} NSFW posts')
 		else:
 			membDel = await dawdle.fetch_member(arg)
 			def is_user(message):
