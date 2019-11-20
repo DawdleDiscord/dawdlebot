@@ -23,8 +23,8 @@ def get_server(guilds,server):
 async def on_ready():
 	dawdle = get_server(bot.guilds,'dawdle')
 	print(f'{bot.user} has connected to Discord!', f'{dawdle.name}(id: {dawdle.id})')
-	game = discord.Game("amer's true fave")
-	await bot.change_presence(status="amer's true fave",activity=game)
+	game = discord.Game("ping amer if I'm not working")
+	await bot.change_presence(status="saint's true fave",activity=game)
 
 @bot.event
 async def on_raw_reaction_add(payload):
@@ -53,7 +53,7 @@ async def on_raw_reaction_add(payload):
 			await userM.add_roles(verifrole)
 			await userM.add_roles(dotRole)
 			await userM.remove_roles(unverifrole)
-			await userM.send("Thank you for verifying! You’ve successfully completed this process, you are now able to see the majority of the server. Please proceed to get some <#527307900662710297> and to post an <#514555898648330260>! No formats are necessary for introductions, just a little snippet will do. When you are done with both, type \"/done\" (without the quotes) anywhere in the server.")
+			await userM.send("Thank you for verifying! You’ve successfully completed this process, you are now able to see the majority of the server. Please proceed to get some <#527307900662710297> and to post an <#514555898648330260>! No formats are necessary for introductions, just a little snippet will do. When you are done with both, type \"/done\" (without the quotes) in <#514560994337620008>.")
 		elif str(verifEmoj) == '<:pinkno:609771973102534687>' and Ncross==2:
 			await userM.send("Sorry, but the pictures you provided do not follow our outlines as described in <#479407137060028449>. Please review and try again!")
 
@@ -102,6 +102,8 @@ async def on_raw_reaction_add(payload):
 async def on_member_join(member):
 	dawdle = get_server(bot.guilds,'dawdle')
 	unverifrole = dawdle.get_role(479410607821684757)
+	foyerchannel = dawdle.get_channel(514554494495752204)
+	await foyerchannel.send(f'Welcome to dawdle, {member.mention}. Please read <#479407137060028449> to know how to access the rest of the server! Enjoy your stay.')
 	await member.add_roles(unverifrole)
 	try:
 		await member.send(f'Hi {member.name}, welcome to Dawdle! We\'re so happy to have you! Please read <#479407137060028449> for details on how to get verified so that the rest of the server can be opened up to you.\n \nVerification is required to stay, but we understand if you can\'t do it right away. <#514550733732053012> is open for you to talk and say hi before you verify so you can meet some of the great folks that we have! \n \n**When you\'re ready to verify, please send your items to me (this bot) so that a member of staff can review it and you can access more of the server!**')
@@ -127,11 +129,13 @@ async def on_message(message):
 			if message.content:
 				embedMess = discord.Embed(title='Message',description=f'{message.content}', color=0xffb6c1,timestamp = datetime.datetime.utcnow())
 				embedMess.set_author(name=f'{message.author}',icon_url = message.author.avatar_url)
+				embedMess.set_footer(text=f"ID: {message.author.id}")
 				await verifchannel.send(embed=embedMess)
 			for a in message.attachments:
 				embedVar = discord.Embed(title='Verification', color=0xffb6c1,timestamp = datetime.datetime.utcnow())
 				embedVar.set_author(name=f'{message.author}',icon_url = message.author.avatar_url)
 				embedVar.set_image(url=a.url)
+				embedVar.set_footer(text=f"ID: {message.author.id}")
 				await verifchannel.send(embed=embedVar)
 			if message.attachments:
 				userM = message.author.mention
@@ -146,18 +150,22 @@ async def on_message(message):
 	introchannel = dawdle.get_channel(514555898648330260)
 	museumchannel = dawdle.get_channel(564613278874075166)
 	selfieChannel = dawdle.get_channel(514556004822941696)
+	fuzzieChannel = dawdle.get_channel(639698875346845696)
 	if message.channel == introchannel:
 		await message.add_reaction('❤')
 		def is_old_intro(mess2):
 			return mess2.author == message.author and mess2.id != message.id and mess2.author.id != 381507393470857229 
 		deleted_intro = await introchannel.purge(limit=None,check=is_old_intro)
-	if message.channel == museumchannel or message.channel == selfieChannel:
+	if message.channel == museumchannel or message.channel == selfieChannel or message.channel == fuzzieChannel:
 		await message.add_reaction('❤')
 
 	#Goodnight messages
 
 	if message.channel and ("nini dawdle" in message.content.lower()):
 		await message.author.send(random.choice(gn_mess_dict.gn_mess['nini_mess']))
+
+#	if message.channel == spamchannel and message.author == dbumpbot:
+#		print(message.embeds[0].description)
 
 
 
@@ -166,6 +174,7 @@ async def on_message(message):
 @bot.event
 async def on_member_remove(member):
 	dawdle = get_server(bot.guilds,'dawdle')
+	foyerchannel = dawdle.get_channel(514554494495752204)
 	introChannel = dawdle.get_channel(514555898648330260)
 	verifrole = dawdle.get_role(481148097960083471)
 	verified = False
@@ -178,15 +187,21 @@ async def on_member_remove(member):
 			return message.author == member
 		deleted = await introChannel.purge(limit=None,check=is_user)
 
+	await foyerchannel.send(f'Bye {member.name}, you whore.')
+
 @bot.command()
-async def cleanselfies(ctx,arg):
+async def cleanmembers(ctx,arg):
 	dawdle = get_server(bot.guilds,'dawdle')
 	staffrole = dawdle.get_role(519616340940554270)
 	saintrole = dawdle.get_role(490249474619211838)
+	introChannel = dawdle.get_channel(514555898648330260)
 	selfieChannel = dawdle.get_channel(514556004822941696)
+	museumChannel = dawdle.get_channel(564613278874075166)
+	animalsChannel = dawdle.get_channel(514556101052858378)
 	herNSFWChannel = dawdle.get_channel(600720351684591646)
 	himNSFWChannel = dawdle.get_channel(600720380801449985)
 	themNSFWChannel = dawdle.get_channel(600720406902734858)
+
 
 	isStaff = False
 	for role in ctx.message.author.roles:
@@ -201,8 +216,12 @@ async def cleanselfies(ctx,arg):
 			deletedNSFWher = await herNSFWChannel.purge(limit=None,check=is_member)
 			deletedNSFWhim = await himNSFWChannel.purge(limit=None,check=is_member)
 			deletedNSFWthem = await themNSFWChannel.purge(limit=None,check=is_member)
+			deletedMuseum = await museumChannel.purge(limit=None,check=is_member)
+			deletedAnimals = await animalsChannel.purge(limit=None,check=is_member)
+			deletedIntro = await introChannel.purge(limit=None,check=is_member)
+			
 			numDelNSFW = len(deletedNSFWthem) + len(deletedNSFWhim) + len(deletedNSFWher)
-			await ctx.send(f'{ctx.message.author.mention} deleted {len(deletedSelfies)} selfies and {numDelNSFW} NSFW posts')
+			await ctx.send(f'{ctx.message.author.mention} deleted {len(deletedSelfies)} selfies, {len(deletedIntro)} intros, {len(deletedMuseum)} museum posts, {len(deletedAnimals)} animal posts, and {numDelNSFW} NSFW posts')
 		else:
 			membDel = await dawdle.fetch_member(arg)
 			def is_user(message):
@@ -219,13 +238,14 @@ async def done(ctx):
 	dotRole = dawdle.get_role(587397534469718022)
 	verifrole = dawdle.get_role(481148097960083471)
 	angelrole = dawdle.get_role(563814890184376331)
+	spamchannel = dawdle.get_channel(514560994337620008)
 	hasDotRole = False
 	hasIntro = False
 	for role in ctx.message.author.roles:
 		if role == dotRole:
 			hasDotRole = True
 			break
-	if hasDotRole and ctx.message.channel:
+	if hasDotRole and ctx.message.channel == spamchannel:
 		reqRoles = ctx.message.author.roles
 		for role in ctx.message.author.roles:
 			if role == verifrole or role == angelrole or role == dotRole:
@@ -247,7 +267,29 @@ async def done(ctx):
 		else:
 			await ctx.send(f'Sorry {ctx.message.author.mention}, but you seem to be missing some <#527307900662710297> and an <#514555898648330260>. Try again!')
 	
-
+@bot.command()
+async def msg_back(ctx, arg1 : str, arg2):
+	dawdle = get_server(bot.guilds,'dawdle')
+	verifchannel = dawdle.get_channel(623016717429374986)
+	#if arg1[2] == "!":
+	#	memb_id = int(arg1[3:lastchar])
+	#else:
+	#	memb_id = int(arg1[2:lastchar])
+	if ctx.message.channel == verifchannel:
+		if ctx.message.mentions:
+			try: 
+				memb = ctx.message.mentions[0]
+				await memb.send(f"{arg2}")
+				await ctx.send(f'Message sent to {memb}.')
+			except:
+				await verifchannel.send("Sorry, could not find that member or member has server DMs disabled")
+				pass
+		else:
+			await ctx.send('You did not mention a member.')
 
 
 bot.run(token)
+
+
+
+

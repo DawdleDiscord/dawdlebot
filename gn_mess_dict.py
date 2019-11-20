@@ -22,7 +22,21 @@ gn_mess = {
 	"sleep well, it is foretold that you will awaken feeling bright and fresh in the morning! have wonderful dreams",
 	"goodnight, sleep tight, and don’t let the bed bugs bite! if they do bite them back! sleep well, i hope you have sweet dreams",
 	"Goodnight you cutie patootie. Make tomorrow as amazing as you are, we all believe in you ",
-	"Good night and sweet dreams!~ You've had a long day, but you got through it! We're so proud of you, and you deserve this good rest!"
+	"Good night and sweet dreams!~ You've had a long day, but you got through it! We're so proud of you, and you deserve this good rest!",
+	"have sweet dreams, my angel. may you dream of hanging with your buddies in dawdle and your favorite fictional characters! love you!",
+	"May the blessings of peaceful slumber rain down upon you. May your dreams be sweeter than the sweetest of maple glazes. May your wake be as pleasant as the smell of a freshly baked ham. You are loved friend, sleep well.",
+	"Sweet dreams, Sweet person. May your dreams be filled with blue skies and cotton candy clouds. You always have tomorrow to accomplish what you couldn’t yesterday.",
+	"goodnight darlin' may the moon smile upon your sleep and may you wake up 5 minutes before your alarm, feeling well rested",
+	"Find your sleep and dream, my friend - dream of a better world, \n May you dream of someone special, a them, a boy, or girl,\n So wish upon a star, my friend, a dream, a hope to take, \n For Dawdle will be waiting, whenever you awake.",
+	"Weary with toil, haste to your bed,\n The dear repose for limbs with travel tired;\n But then begins a journey in your head\n To work your mind, when body’s work’s expired",
+	"Sleep well tonight, lovely Dawdlian! Allow your head to rest just perfectly against your pillow and let your mind wander to lands you may only traverse in dreamland. Tomorrow is another day, and Dawdle will be here to welcome you home as long as you choose to stay.",
+	"hello my dawdle friend sleepy time is best time! so get all cozy under a blankie, close your eyes, and go meet kirby in Dreamland c:",
+	"Lights switch off and curtains are drawn. Arms stretch out and faces yawn.\n Dawdle here sending you of to bed, \n To go and rest your sleepy head. \n \n Nini!",
+	"goodnight, sleep tight, bite the bedbugs first to assert dominance. we all love you",
+	"sleep sleep sleep it is time to go to sleep! so yeet your phone, get all cozy, and sleep sleep sleep until morning",
+	"Go To Sleep You Amazing Person You! If you dont the Nargles will come and fly in through your ears and make your brain go fuzzy!",
+	"Rest up, weary traveler. Tomorrow is a new day of magic and monsters, but for tonight, let sweet dreams be your only concern.",
+	"you all meet in a Tavern.... WAIT A SEC! WHY ARE YOU IN A TAVERN!!! GO TO SLEEP! lots of love.",
 
 
 
