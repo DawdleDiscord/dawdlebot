@@ -1,5 +1,7 @@
 import discord
 import datetime
+import asyncio
+import math
 from discord.ext.commands import Bot
 from discord.ext import commands
 import gn_mess_dict
@@ -7,7 +9,10 @@ import random
 from dawdle_vars import dawdletoken
 
 bot = Bot(command_prefix = '/')
-
+#List for times
+userAndDate = {}
+#Time at start up.
+botStartup = datetime.datetime.now()
 token = dawdletoken
 GUILD1 = 'dawdle'
 GUILD2 = 'amertestserver'
@@ -119,6 +124,26 @@ async def on_message(message):
 	verifchannel = dawdle.get_channel(623016717429374986)
 	unverifrole = dawdle.get_role(479410607821684757)
 	staffrole = dawdle.get_role(519616340940554270)
+	#Get disboard bot user
+	bumpbot = dawdle.get_member(302050872383242240)
+	#Check if disboard sent the message
+	if(message.author.id == bumpbot.id):
+		#Grab the embed from the message if there is an embed
+		if(message.embeds):
+			disboardEmbed = message.embeds[0]
+			#Use the URL of the bump image to check if the bot had a successful bump.
+			imageURL = 'https://disboard.org/images/bot-command-image-bump.png'
+			if(disboardEmbed.image.url == imageURL):
+				#Get the message directly before the bump as it should be whoever bumped it
+				async for prevmessage in message.channel.history(limit=1, before=message.id):
+					#Check if the message is a bump command
+					if(prevmessage.content = '!d bump'):
+						#Check if whoever sent the message is staff or not
+						for r in prevmessage.author.roles:
+							if r != staffrole:
+								#Do whatever here to alert staff that someone bumped that wasn't staff
+					
+			
 	if dawdle.get_member(message.author.id):
 		userM = dawdle.get_member(message.author.id)
 		unverified = False
@@ -188,7 +213,40 @@ async def on_member_remove(member):
 		deleted = await introChannel.purge(limit=None,check=is_user)
 
 	await foyerchannel.send(f'Bye {member.name}, you whore.')
-
+	
+	#VC Tracker
+async def on_voice_state_update(member, before, after):
+    global botStartup
+    global userAndDate
+    #Check if they joined a voice channel
+    if before.voice.voice_channel is None and after.voice.voice_channel is not None:
+        currentTime = datetime.datetime.now()
+        #Set the time for when they joined
+        userAndDate[message.server.id] = currentTime
+    #Check if they left a voice channel
+    elif before.voice.voice_channel is not None and after.voice.voice_channel is None:
+        #Set time for when they left
+        currentTime = datetime.datetime.now()
+        #Set the time for when they joined to bot startup in case of bot crashing, if they are in the list
+        #Set the time for when they actually joined
+        lastJoin = botStartup
+        if message.server.id in serverAndDate:
+            lastJoin = userAndDate[member.id]
+        #Math the fuck out of some time for easy time differentiating
+        diff = currentTime - lastJoin
+        hours = math.floor(diff.seconds/3600)
+        minutes = math.floor((diff.seconds - hours * 3600)/60)
+        seconds = diff.seconds - hours * 3600 - minutes * 60
+        #Formatted string for minutes
+        mt = "{} minutes".format(minutes)
+        #If they've been in VC for more than 10 minutes send to staff
+        if (minutes>=10):
+            userAndDate.remove(member.id)
+            staffChannel = client.get_channel('641796475470217264')
+            await staffChannel.send('{} was in VC for {}'.format(member.mention,mt))
+        #If they haven't been in VC for 10 minutes just remove them from the list
+        elif(minutes<=9):
+            userAndDate.remove(member.id)
 @bot.command()
 async def cleanmembers(ctx,arg):
 	dawdle = get_server(bot.guilds,'dawdle')
