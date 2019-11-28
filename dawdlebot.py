@@ -124,24 +124,26 @@ async def on_message(message):
 	verifchannel = dawdle.get_channel(623016717429374986)
 	unverifrole = dawdle.get_role(479410607821684757)
 	staffrole = dawdle.get_role(519616340940554270)
+	staffchannel = dawdle.get_channel(641796475470217264)
 	#Get disboard bot user
-	bumpbot = dawdle.get_member(302050872383242240)
-	#Check if disboard sent the message
-	if(message.author.id == bumpbot.id):
-		#Grab the embed from the message if there is an embed
-		if(message.embeds):
-			disboardEmbed = message.embeds[0]
-			#Use the URL of the bump image to check if the bot had a successful bump.
-			imageURL = 'https://disboard.org/images/bot-command-image-bump.png'
-			if(disboardEmbed.image.url == imageURL):
-				#Get the message directly before the bump as it should be whoever bumped it
-				async for prevmessage in message.channel.history(limit=1, before=message.id):
-					#Check if the message is a bump command
-					if(prevmessage.content = '!d bump'):
-						#Check if whoever sent the message is staff or not
-						for r in prevmessage.author.roles:
-							if r != staffrole:
-								#Do whatever here to alert staff that someone bumped that wasn't staff
+	# bumpbot = dawdle.get_member(302050872383242240)
+	# #Check if disboard sent the message
+	# if(message.author.id == bumpbot.id):
+	# 	#Grab the embed from the message if there is an embed
+	# 	if(message.embeds):
+	# 		disboardEmbed = message.embeds[0]
+	# 		#Use the URL of the bump image to check if the bot had a successful bump.
+	# 		imageURL = 'https://disboard.org/images/bot-command-image-bump.png'
+	# 		if(disboardEmbed.image.url == imageURL):
+	# 			#Get the message directly before the bump as it should be whoever bumped it
+	# 			async for prevmessage in message.channel.history(limit=1, before=message.id):
+	# 				#Check if the message is a bump command
+	# 				if(prevmessage.content == '!d bump'):
+	# 					#Check if whoever sent the message is staff or not
+	# 					for r in prevmessage.author.roles:
+	# 						if r != staffrole:
+	# 							staffchannel.send(f'{prevmessage.author.mention} bumped the disboard bot')
+	# 							#Do whatever here to alert staff that someone bumped that wasn't staff
 					
 			
 	if dawdle.get_member(message.author.id):
@@ -215,38 +217,51 @@ async def on_member_remove(member):
 	await foyerchannel.send(f'Bye {member.name}, you whore.')
 	
 	#VC Tracker
+@bot.event
 async def on_voice_state_update(member, before, after):
-    global botStartup
-    global userAndDate
-    #Check if they joined a voice channel
-    if before.voice.voice_channel is None and after.voice.voice_channel is not None:
-        currentTime = datetime.datetime.now()
-        #Set the time for when they joined
-        userAndDate[message.server.id] = currentTime
-    #Check if they left a voice channel
-    elif before.voice.voice_channel is not None and after.voice.voice_channel is None:
-        #Set time for when they left
-        currentTime = datetime.datetime.now()
-        #Set the time for when they joined to bot startup in case of bot crashing, if they are in the list
-        #Set the time for when they actually joined
-        lastJoin = botStartup
-        if message.server.id in serverAndDate:
-            lastJoin = userAndDate[member.id]
-        #Math the fuck out of some time for easy time differentiating
-        diff = currentTime - lastJoin
-        hours = math.floor(diff.seconds/3600)
-        minutes = math.floor((diff.seconds - hours * 3600)/60)
-        seconds = diff.seconds - hours * 3600 - minutes * 60
-        #Formatted string for minutes
-        mt = "{} minutes".format(minutes)
-        #If they've been in VC for more than 10 minutes send to staff
-        if (minutes>=10):
-            userAndDate.remove(member.id)
-            staffChannel = client.get_channel('641796475470217264')
-            await staffChannel.send('{} was in VC for {}'.format(member.mention,mt))
-        #If they haven't been in VC for 10 minutes just remove them from the list
-        elif(minutes<=9):
-            userAndDate.remove(member.id)
+	dawdle = get_server(bot.guilds,'dawdle')
+	global botStartup
+	global userAndDate
+	musicchannel = dawdle.get_channel(479408746955669524)
+	afkchannel = dawdle.get_channel(533325041723506688)
+	#Check if they joined a voice channel
+	if before.channel is None and after.channel is not None and after.channel != musicchannel and after.channel != afkchannel:
+		currentTime = datetime.datetime.now()
+		#Set the time for when they joined
+		userAndDate[member.id] = currentTime
+	#Check if they left a voice channel
+	elif (before.channel is not None and after.channel is None and before.channel != musicchannel and before.channel != afkchannel):
+		#Set time for when they left
+		currentTime = datetime.datetime.now()
+		#Set the time for when they joined to bot startup in case of bot crashing, if they are in the list
+		#Set the time for when they actually joined
+		lastJoin = botStartup
+		if member.id in userAndDate:
+			lastJoin = userAndDate[member.id]
+		#Math the fuck out of some time for easy time differentiating
+		diff = currentTime - lastJoin
+		hours = math.floor(diff.seconds/3600)
+		minutes = math.floor((diff.seconds - hours * 3600)/60)
+		seconds = diff.seconds - hours * 3600 - minutes * 60
+		#Formatted string for minutes
+		mt = "{} minutes".format(minutes)
+		#If they've been in VC for more than 10 minutes send to staff
+		if (minutes>=10 and userAndDate[member.id]):
+			del userAndDate[member.id]
+			staffChannel = get_server(bot.guilds,'dawdle').get_channel(641796475470217264)
+			noKoins = False
+			async for mess in staffChannel.history(limit=200):
+				if mess.embeds and mess.author.id == 622553812221296696:
+					if mess.embeds[0].footer.text == str(member.id) and (datetime.datetime.utcnow() - mess.embeds[0].timestamp).days < 1:
+						noKoins = True
+						break
+			if not noKoins:
+				voiceEmbed = discord.Embed(title= "VC Koins",description=f"{member.mention} was in VC for {mt}. Give them koins!",color=0xffb6c1,timestamp = datetime.datetime.utcnow())
+				voiceEmbed.set_footer(text=f'{member.id}')
+				await staffChannel.send(embed=voiceEmbed)
+		#If they haven't been in VC for 10 minutes just remove them from the list
+		elif(minutes<10 and userAndDate[member.id]):
+			del userAndDate[member.id]
 @bot.command()
 async def cleanmembers(ctx,arg):
 	dawdle = get_server(bot.guilds,'dawdle')
