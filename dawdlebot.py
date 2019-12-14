@@ -28,8 +28,9 @@ def get_server(guilds,server):
 async def on_ready():
 	dawdle = get_server(bot.guilds,'dawdle')
 	print(f'{bot.user} has connected to Discord!', f'{dawdle.name}(id: {dawdle.id})')
-	game = discord.Game("ping amer if I'm not working")
-	await bot.change_presence(status="saint's true fave",activity=game)
+	game = discord.Game("say 'nini dawdle' for a goodnight message!")
+	await bot.change_presence(activity=game)
+
 
 @bot.event
 async def on_raw_reaction_add(payload):
@@ -49,17 +50,17 @@ async def on_raw_reaction_add(payload):
 		Ntick = 0
 		Ncross = 0
 		for vr in verifMess.reactions:
-			if str(vr.emoji) == '<:pinktick:609771973341610033>':
+			if str(vr.emoji) == '<:pinktick:609771973341610033>' and not verifMess.embeds:
 				Ntick = vr.count
-			elif str(vr.emoji) == '<:pinkno:609771973102534687>':
+			elif str(vr.emoji) == '<:pinkno:609771973102534687>' and not verifMess.embeds:
 				Ncross = vr.count
 
-		if str(verifEmoj) == '<:pinktick:609771973341610033>' and Ntick==2:
+		if str(verifEmoj) == '<:pinktick:609771973341610033>' and Ntick==2 and not verifMess.embeds:
 			await userM.add_roles(verifrole)
 			await userM.add_roles(dotRole)
 			await userM.remove_roles(unverifrole)
 			await userM.send("Thank you for verifying! You’ve successfully completed this process, you are now able to see the majority of the server. Please proceed to get some <#527307900662710297> and to post an <#514555898648330260>! No formats are necessary for introductions, just a little snippet will do. When you are done with both, type \"/done\" (without the quotes) in <#514560994337620008>.")
-		elif str(verifEmoj) == '<:pinkno:609771973102534687>' and Ncross==2:
+		elif str(verifEmoj) == '<:pinkno:609771973102534687>' and Ncross==2 and not verifMess.embeds:
 			await userM.send("Sorry, but the pictures you provided do not follow our outlines as described in <#479407137060028449>. Please review and try again!")
 
 #pin code
@@ -102,6 +103,21 @@ async def on_raw_reaction_add(payload):
 						editEmbedMess.set_field_at(index=korbIndex, name=f'{r.count} {r.emoji}',value=f'[Jump!]({r.message.jump_url})')
 						await pinnedMess.edit(embed = editEmbedMess,supress=False)
 					break
+	botChannel = dawdle.get_channel(654787316665286714)
+	ventChannel = dawdle.get_channel(514561071441248266)
+	if srcChannel == botChannel:
+		ventMess = await srcChannel.fetch_message(payload.message_id)
+		if ventMess.embeds[0].title=='Vent' and (verifEmoj.id == 609771973341610033 or verifEmoj.id == 609771973102534687):
+			for vr in ventMess.reactions:
+				if vr.emoji == verifEmoj and vr.count == 2:
+					if verifEmoj.id == 609771973341610033:
+						embedVent = ventMess.embeds[0]
+						embedVent.title = ''
+						embedVent.set_footer(text='')
+						await ventChannel.send(embed=embedVent)
+					elif verifEmoj.id == 609771973102534687:
+						ventMemb = await dawdle.fetch_member(ventMess.embeds[0].footer.text)
+						await ventMemb.send('<a:weewoo:598696151759192085> **Anonymous Venting Rules** <a:weewoo:598696151759192085> \n \n <a:tinyheart:546404868529717270> 1. Any vent about another person in the server will be immediately denied. \n \n <a:tinyheart:546404868529717270> 2. Overtly sexual or explicit vents are not allowed. \n \n <a:tinyheart:546404868529717270> 3. __Dawdle rules apply__. Any suicide/self-harm references will be denied. \n \n <a:tinyheart:546404868529717270> 4. If you wish to vent and do not want any advice or responses write NA at the end of your vent. \n \n <a:tinyheart:546404868529717270> 5. While it is anonymous, staff can see user IDs and will warn/ban any user when necessary. \n \n <a:weewoo:598696151759192085> **Instructions on how to use** <a:weewoo:598696151759192085> \n \n <a:tinyheart:546404868529717270>  DM <@622553812221296696> using this format: \n >>> `/vent "Message"` \n \n The quotes are important! \n \n `example:` /vent “Hello I am venting”')
 
 @bot.event
 async def on_member_join(member):
@@ -169,7 +185,7 @@ async def on_message(message):
 				await verifchannel.send(f'{staffrole.mention}, verify {userM}?')
 				await message.author.dm_channel.send('Your message has been successfully submitted. Please wait patiently for a staff member to review your pictures.')
 	
-		elif message.channel == verifchannel and message.mentions and message.author.bot:
+		elif message.channel == verifchannel and message.mentions and message.author.bot and not message.embeds:
 			await message.add_reaction('<:pinktick:609771973341610033>')
 			await message.add_reaction('<:pinkno:609771973102534687>')
 	
@@ -246,22 +262,24 @@ async def on_voice_state_update(member, before, after):
 		#Formatted string for minutes
 		mt = "{} minutes".format(minutes)
 		#If they've been in VC for more than 10 minutes send to staff
-		if (minutes>=10 and userAndDate[member.id]):
+		if (minutes>=20 and userAndDate[member.id]):
 			del userAndDate[member.id]
-			staffChannel = get_server(bot.guilds,'dawdle').get_channel(641796475470217264)
+			botChannel = get_server(bot.guilds,'dawdle').get_channel(654787316665286714)
 			noKoins = False
-			async for mess in staffChannel.history(limit=200):
-				if mess.embeds and mess.author.id == 622553812221296696:
-					if mess.embeds[0].footer.text == str(member.id) and (datetime.datetime.utcnow() - mess.embeds[0].timestamp).days < 1:
+			async for mess in botChannel.history(limit=200):
+				if mess.embeds and mess.embeds[0].title == "VC Koins" and mess.author.id == 622553812221296696:
+					if  mess.embeds[0].footer.text == str(member.id) and (datetime.datetime.utcnow() - mess.embeds[0].timestamp).days < 1:
 						noKoins = True
 						break
 			if not noKoins:
 				voiceEmbed = discord.Embed(title= "VC Koins",description=f"{member.mention} was in VC for {mt}. Give them koins!",color=0xffb6c1,timestamp = datetime.datetime.utcnow())
 				voiceEmbed.set_footer(text=f'{member.id}')
-				await staffChannel.send(embed=voiceEmbed)
+				await botChannel.send(embed=voiceEmbed)
 		#If they haven't been in VC for 10 minutes just remove them from the list
-		elif(minutes<10 and userAndDate[member.id]):
+		elif(minutes<20 and userAndDate[member.id]):
 			del userAndDate[member.id]
+
+
 @bot.command()
 async def cleanmembers(ctx,arg):
 	dawdle = get_server(bot.guilds,'dawdle')
@@ -359,6 +377,46 @@ async def msg_back(ctx, arg1 : str, arg2):
 				pass
 		else:
 			await ctx.send('You did not mention a member.')
+
+
+@bot.command()
+async def vent(ctx,arg : str):
+	dawdle = get_server(bot.guilds,'dawdle')
+	botChannel = dawdle.get_channel(654787316665286714)
+	check_emoj = await dawdle.fetch_emoji(609771973341610033)
+	cross_emoj = await dawdle.fetch_emoji(609771973102534687)
+	if not ctx.message.guild:
+		embedVent = discord.Embed(title='Vent',description = arg, color=0xffb6c1,timestamp = datetime.datetime.utcnow())
+		embedVent.set_footer(text=ctx.message.author.id)
+		ventMess = await botChannel.send(embed=embedVent)
+		await ventMess.add_reaction(check_emoj)
+		await ventMess.add_reaction(cross_emoj)
+		try:
+			await ctx.message.author.send('Your vent has been sent to staff for approval.')
+		except:
+			pass
+
+@bot.command()
+async def check_intro(ctx):
+	dawdle = get_server(bot.guilds,'dawdle')
+	dotrole = dawdle.get_role(587397534469718022)
+	introChannel = dawdle.get_channel(514555898648330260)
+	botChannel = dawdle.get_channel(654787316665286714)
+	verifiedRole = dawdle.get_role(481148097960083471)
+	if ctx.message.channel == botChannel:
+		for mem in verifiedRole.members:
+			has_intro = False
+			async for intro in introChannel.history(limit=None):
+				if intro.author == mem or mem.bot:
+					has_intro = True
+					break
+			if not has_intro:
+				try:
+					await mem.add_roles(dotrole)
+					await ctx.send(f'Gave dot role to {mem.mention}')
+				except:
+					await ctx.send(f'I do not have permission to give dot role to {mem.mention}')
+		await ctx.send('Done checking for intros')
 
 
 bot.run(token)
