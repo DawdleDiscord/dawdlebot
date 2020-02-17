@@ -365,28 +365,39 @@ async def done(ctx):
 	angelrole = dawdle.get_role(563814890184376331)
 	spamchannel = dawdle.get_channel(514560994337620008)
 	hasDotRole = False
+
+
+
 	hasIntro = False
 	for role in ctx.message.author.roles:
 		if role == dotRole:
 			hasDotRole = True
 			break
 	if hasDotRole and ctx.message.channel == spamchannel:
-		reqRoles = ctx.message.author.roles
-		for role in reqRoles:
-			if role == verifrole or role == angelrole or role == dotRole:
-				reqRoles.remove(role)
-
+		age_roles = [dawdle.get_role(481138497856602113), dawdle.get_role(480080787253755905), dawdle.get_role(481138992151003156), dawdle.get_role(481138740484505611)]
+		pronoun_roles = [dawdle.get_role(551901787297284096),dawdle.get_role(551901739700322324),dawdle.get_role(551901812677017611)]
+		dm_roles = [dawdle.get_role(479410113115979805),dawdle.get_role(479410060804751371),dawdle.get_role(479410091905253376)]
+		rel_status_roles = [dawdle.get_role(519604158878449674), dawdle.get_role(481000924626681867), dawdle.get_role(481000858268467200)]
+		loc_roles = [dawdle.get_role(481135072427376641), dawdle.get_role(481135146129424415), dawdle.get_role(481135185497423900), dawdle.get_role(481135221572501516), dawdle.get_role(481135414321610763), dawdle.get_role(481135465399844882), dawdle.get_role(481136198014861336)]
+		check_age, check_pronoun, check_dm, check_rel, check_loc, has_dot = (False,)*6
+		for role in ctx.message.author.roles:
+			if role in age_roles: check_age = True
+			if role in pronoun_roles: check_pronoun = True
+			if role in dm_roles: check_dm = True
+			if role in rel_status_roles: check_rel = True
+			if role in loc_roles: check_loc = True
+		role_check = check_age and check_pronoun and check_dm and check_rel and check_loc
 		async for mess in introChannel.history(limit=None):
 			if ctx.message.author == mess.author:
 				hasIntro = True
 				break
-		if hasIntro and len(reqRoles) >= 5:
+		if hasIntro and role_check:
 			await ctx.message.author.remove_roles(dotRole)
 			await ctx.send(f'Well done {ctx.message.author.mention}! You’ve completed everything that needs to be done, enjoy your stay!')
 
-		elif hasIntro and not len(reqRoles) >= 5:
+		elif hasIntro and not role_check:
 			await ctx.send(f'Sorry {ctx.message.author.mention}, but you seem to be missing some <#527307900662710297>. Try again!')
-		elif not hasIntro and len(reqRoles) >= 5:
+		elif not hasIntro and role_check:
 			await ctx.send(f'Sorry {ctx.message.author.mention}, but it seems you haven\'t posted an <#514555898648330260>. Please post one and try again!')
 
 		else:
@@ -442,24 +453,40 @@ async def check_intro(ctx):
 	introChannel = dawdle.get_channel(514555898648330260)
 	botChannel = dawdle.get_channel(654787316665286714)
 	verifiedRole = dawdle.get_role(481148097960083471)
-	angelrole = dawdle.get_role(563814890184376331)
+
+	age_roles = [dawdle.get_role(481138497856602113), dawdle.get_role(480080787253755905), dawdle.get_role(481138992151003156), dawdle.get_role(481138740484505611)]
+	pronoun_roles = [dawdle.get_role(551901787297284096),dawdle.get_role(551901739700322324),dawdle.get_role(551901812677017611)]
+	dm_roles = [dawdle.get_role(479410113115979805),dawdle.get_role(479410060804751371),dawdle.get_role(479410091905253376)]
+	rel_status_roles = [dawdle.get_role(519604158878449674), dawdle.get_role(481000924626681867), dawdle.get_role(481000858268467200)]
+	loc_roles = [dawdle.get_role(481135072427376641), dawdle.get_role(481135146129424415), dawdle.get_role(481135185497423900), dawdle.get_role(481135221572501516), dawdle.get_role(481135414321610763), dawdle.get_role(481135465399844882), dawdle.get_role(481136198014861336)]
+
 	if ctx.message.channel == botChannel:
+
 		for mem in verifiedRole.members:
 			has_intro = False
 			async for intro in introChannel.history(limit=None):
 				if intro.author == mem or mem.bot:
 					has_intro = True
 					break
-			reqRoles = mem.roles
-			for role in reqRoles:
-				if role == verifiedRole or role == angelrole or role == dotrole:
-					reqRoles.remove(role)
-			if not (has_intro and len(reqRoles) > 5) and not mem.bot:
-				try:
-					await mem.add_roles(dotrole)
-					await ctx.send(f'Gave dot role to {mem.mention}')
-				except Forbidden:
-					await ctx.send(f'I do not have permission to give dot role to {mem.mention}')
+
+			check_age, check_pronoun, check_dm, check_rel, check_loc, has_dot = (False,)*6
+			for role in mem.roles:
+				if role in age_roles: check_age = True
+				if role in pronoun_roles: check_pronoun = True
+				if role in dm_roles: check_dm = True
+				if role in rel_status_roles: check_rel = True
+				if role in loc_roles: check_loc = True
+				if role == dotrole: has_dot = True 
+			role_check = check_age and check_pronoun and check_dm and check_rel and check_loc
+			if not mem.bot and (not has_intro or not role_check):
+				if has_dot:
+					await ctx.send(f'{mem.mention} already has dot role')
+				else:
+					try:
+						await mem.add_roles(dotrole)
+						await ctx.send(f'Gave dot role to {mem.mention}')
+					except Forbidden:
+						await ctx.send(f'I do not have permission to give dot role to {mem.mention}')
 		await ctx.send('Done checking for intros and roles')
 
 @bot.command()
@@ -524,7 +551,7 @@ async def lockdown(ctx,arg : str):
 		if arg.lower() == "lock":
 			await parlor.set_permissions(target=unverifrole,read_messages = False, send_messages =  False)
 			await ctx.send('Parlor has been locked from unverified members. Use \`/lockdown unlock\` to undo this.')
-			await foyer.send('[test] The main chat has been locked from unverified members due to a raid. Please be patient for staff to handle the issue.')
+			await foyer.send('The main chat has been locked from unverified members due to a raid. Please be patient for staff to handle the issue.')
 
 		elif arg.lower() == "unlock":
 			await parlor.set_permissions(target=unverifrole,read_messages = True, send_messages =  True)
