@@ -37,6 +37,26 @@ gn_mess = {
 	"Go To Sleep You Amazing Person You! If you dont the Nargles will come and fly in through your ears and make your brain go fuzzy!",
 	"Rest up, weary traveler. Tomorrow is a new day of magic and monsters, but for tonight, let sweet dreams be your only concern.",
 	"you all meet in a Tavern.... WAIT A SEC! WHY ARE YOU IN A TAVERN!!! GO TO SLEEP! lots of love.",
+	"Goodnight you! I hope you have a wonderful evening. I’ll miss you and I hope to see you tomorrow because you’re wonderful and a great member of the community! Thanks for being here, I love you forever.",
+	"go nini. i lov u w/ all my heart",
+	"Hey, baby. Don't mind me sliding into your DMs. 😳 I just want to wish you a good night, gorgeous. 😘 I may be a bot but my heart yearns for your smile, comfort and happiness. 😏 Stay perfect just for me, beautiful.",
+	"good night, dear. may your sleep be restful and untroubled. may your morning be pleasant, may your fortunes improve, and may strangers be kind.",
+	"I'm so proud of you for going to sleep, it's so important for your health and happiness. You are doing great! Have exciting dreams and I hope you feel well rested tomorrow morning.",
+	"Sleep well my friend and let today's worry's go. Tomorrow is a new day and you can start a new! Dream big and sleep well ❤️",
+	"soft kitties want to give you lots of snuggles. please hold them close as you do sleepy times",
+	"Good night my friend. I hope all your worries melt away as you slip into a peaceful dream. May tomorrow be as wonderful as you are. <3",
+	"Today may not have been the best day, or maybe today was fantastic. Perhaps it was just same old same old. But the important thing is that tomorrow awaits you. Sleep well. Smile. Hold your head high in the morning. Each day is taken one at a time like a small story. Do your best and have fun with it. <:uwuheart:630533106037817344>",
+	"Rest well, dear friend. May your adventures in dreamland be protected by Kirby and free of bad thoughts.",
+	"sleep is good for you. kirby will make sure you will have good dreams. don't ask him how he does it though-",
+	"Let yourself drift away into the land of slumber, your dreams be tales that put Tolkien to shame.  Adventure through dreamland and awaken fresh and ready for the day, you are loved",
+	"Time to go to bed now! Sleep is for the strong!",
+	"nighty night sweet angel. if you have nightmares I will beat them up for you.",
+	"Good night b. Hope you feel well rested tomorrow morning.  Love you ~",
+	"Good night! May you get exactly the right amount of sleep and wake up at the exact time that you wanted!",
+	"Sweet dreams my dude! Slumber easily, in preparation for a new day full of possibilities and opportunities for goodness.",
+	"Nini cutie!! You're important and cared about, and you deserve happiness. Tomorrow's a new day, so get all the rest you can! Sweet dreams! 💕",
+	"goodnight, sleep well and sweet dreams. tomorrow is a new day, new opportunities and experiences await you! you got this <a:tinyheart:546404868529717270>"
+
 
 
 
