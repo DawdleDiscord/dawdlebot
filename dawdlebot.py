@@ -7,6 +7,7 @@ from discord.ext import commands
 import gn_mess_dict
 import random
 from dawdle_vars import dawdletoken
+import json
 
 bot = Bot(command_prefix = '/')
 #List for times
@@ -43,7 +44,6 @@ async def on_raw_reaction_add(payload):
 #verification code	
 	if channelR == verifchannel and not userR.bot:
 		verifMess = await verifchannel.fetch_message(payload.message_id)
-		userM = verifMess.mentions[0]
 		verifrole = dawdle.get_role(481148097960083471)
 		unverifrole = dawdle.get_role(479410607821684757)
 		dotRole = dawdle.get_role(587397534469718022)
@@ -54,29 +54,30 @@ async def on_raw_reaction_add(payload):
 		name_emoj = await dawdle.fetch_emoji(598695827891945472)	
 
 		for vr in verifMess.reactions:
-			if vr.emoji == check_emoj and vr.count == 2 and verifMess.mentions:
-				
+			if vr.count == 2 and verifMess.mentions and "verify" in verifMess.content:
 				userM = verifMess.mentions[0]
-				await userM.add_roles(verifrole)
-				await userM.add_roles(dotRole)
-				await userM.remove_roles(unverifrole)
-				await userM.send("Thank you for verifying! You’ve successfully completed this process, you are now able to see the majority of the server. Please proceed to get some <#527307900662710297> and to post an <#514555898648330260>! No formats are necessary for introductions, just a little snippet will do. When you are done with both, type \"/done\" (without the quotes) in <#514560994337620008>.")
-
-			elif verifEmoj == cross_emoj and vr.count == 2 and verifMess.mentions:
+				if vr.emoji == check_emoj:
 				
-				await userM.send("Sorry, but the pictures you provided do not follow our outlines as described in <#479407137060028449>. Please review and try again!")
+					await userM.add_roles(verifrole)
+					await userM.add_roles(dotRole)
+					await userM.remove_roles(unverifrole)
+					await userM.send("Thank you for verifying! You’ve successfully completed this process, you are now able to see the majority of the server. Please proceed to get some <#694994576791961630> and to post an <#514555898648330260>! No formats are necessary for introductions, just a little snippet will do. When you are done with both, type \"/done\" (without the quotes) in <#514560994337620008>.")
 
-			elif verifEmoj == date_emoj and vr.count == 2 and verifMess.mentions:
+				elif verifEmoj == cross_emoj:
 				
-				await userM.send("You’re missing today’s date on the selfie picture!")
+					await userM.send("Sorry, but the pictures you provided do not follow our outlines as described in <#479407137060028449>. Please review and try again!")
 
-			elif verifEmoj == dawd_emoj and vr.count == 2 and verifMess.mentions:
+				elif verifEmoj == date_emoj:
 
-				await userM.send("You're missing the server name on the selfie picture!")
+					await userM.send("You’re missing today’s date on the selfie picture!")
+
+				elif verifEmoj == dawd_emoj:
+
+					await userM.send("You're missing the server name on the selfie picture!")
 			
-			elif verifEmoj == name_emoj and vr.count == 2 and verifMess.mentions:
+				elif verifEmoj == name_emoj:
 
-				await userM.send("You're missing your discord name on the selfie picture!")
+					await userM.send("You're missing your discord name on the selfie picture!")
 
 #pin code
 	pinEmoj = await dawdle.fetch_emoji(491736157844144129)
@@ -118,11 +119,10 @@ async def on_raw_reaction_add(payload):
 						editEmbedMess.set_field_at(index=korbIndex, name=f'{r.count} {r.emoji}',value=f'[Jump!]({r.message.jump_url})')
 						await pinnedMess.edit(embed = editEmbedMess,supress=False)
 					break
-	botChannel = dawdle.get_channel(654787316665286714)
 	ventChannel = dawdle.get_channel(514561071441248266)
-	if srcChannel == botChannel:
+	if srcChannel == verifchannel:
 		ventMess = await srcChannel.fetch_message(payload.message_id)
-		if ventMess.embeds[0].title=='Vent' and (verifEmoj.id == 609771973341610033 or verifEmoj.id == 609771973102534687):
+		if ventMess.embeds and ventMess.embeds[0].title=='Vent' and (verifEmoj.id == 609771973341610033 or verifEmoj.id == 609771973102534687):
 			for vr in ventMess.reactions:
 				if vr.emoji == verifEmoj and vr.count == 2:
 					if verifEmoj.id == 609771973341610033:
@@ -304,9 +304,9 @@ async def on_voice_state_update(member, before, after):
 		#If they've been in VC for more than 10 minutes send to staff
 		if (minutes>=20 and userAndDate[member.id]):
 			del userAndDate[member.id]
-			botChannel = get_server(bot.guilds,'dawdle').get_channel(654787316665286714)
+			verifChannel = get_server(bot.guilds,'dawdle').get_channel(623016717429374986)
 			noKoins = False
-			async for mess in botChannel.history(limit=200):
+			async for mess in verifChannel.history(limit=200):
 				if mess.embeds and mess.embeds[0].title == "VC Koins" and mess.author.id == 622553812221296696:
 					if  mess.embeds[0].footer.text == str(member.id) and (datetime.datetime.utcnow() - mess.embeds[0].timestamp).days < 1:
 						noKoins = True
@@ -314,7 +314,7 @@ async def on_voice_state_update(member, before, after):
 			if not noKoins:
 				voiceEmbed = discord.Embed(title= "VC Koins",description=f"{member.mention} was in VC for {mt}. Give them koins!",color=0xffb6c1,timestamp = datetime.datetime.utcnow())
 				voiceEmbed.set_footer(text=f'{member.id}')
-				await botChannel.send(embed=voiceEmbed)
+				await verifChannel.send(embed=voiceEmbed)
 		#If they haven't been in VC for 10 minutes just remove them from the list
 		elif(minutes<20 and userAndDate[member.id]):
 			del userAndDate[member.id]
@@ -377,16 +377,14 @@ async def done(ctx):
 		age_roles = [dawdle.get_role(481138497856602113), dawdle.get_role(480080787253755905), dawdle.get_role(481138992151003156), dawdle.get_role(481138740484505611)]
 		pronoun_roles = [dawdle.get_role(551901787297284096),dawdle.get_role(551901739700322324),dawdle.get_role(551901812677017611)]
 		dm_roles = [dawdle.get_role(479410113115979805),dawdle.get_role(479410060804751371),dawdle.get_role(479410091905253376)]
-		rel_status_roles = [dawdle.get_role(519604158878449674), dawdle.get_role(481000924626681867), dawdle.get_role(481000858268467200)]
 		loc_roles = [dawdle.get_role(481135072427376641), dawdle.get_role(481135146129424415), dawdle.get_role(481135185497423900), dawdle.get_role(481135221572501516), dawdle.get_role(481135414321610763), dawdle.get_role(481135465399844882), dawdle.get_role(481136198014861336)]
-		check_age, check_pronoun, check_dm, check_rel, check_loc, has_dot = (False,)*6
+		check_age, check_pronoun, check_dm, check_loc, has_dot = (False,)*5
 		for role in ctx.message.author.roles:
 			if role in age_roles: check_age = True
 			if role in pronoun_roles: check_pronoun = True
 			if role in dm_roles: check_dm = True
-			if role in rel_status_roles: check_rel = True
 			if role in loc_roles: check_loc = True
-		role_check = check_age and check_pronoun and check_dm and check_rel and check_loc
+		role_check = check_age and check_pronoun and check_dm and check_loc
 		async for mess in introChannel.history(limit=None):
 			if ctx.message.author == mess.author:
 				hasIntro = True
@@ -396,15 +394,15 @@ async def done(ctx):
 			await ctx.send(f'Well done {ctx.message.author.mention}! You’ve completed everything that needs to be done, enjoy your stay!')
 
 		elif hasIntro and not role_check:
-			await ctx.send(f'Sorry {ctx.message.author.mention}, but you seem to be missing some <#527307900662710297>. Try again!')
+			await ctx.send(f'Sorry {ctx.message.author.mention}, but you seem to be missing some <#694994576791961630>. Try again!')
 		elif not hasIntro and role_check:
 			await ctx.send(f'Sorry {ctx.message.author.mention}, but it seems you haven\'t posted an <#514555898648330260>. Please post one and try again!')
 
 		else:
-			await ctx.send(f'Sorry {ctx.message.author.mention}, but you seem to be missing some <#527307900662710297> and an <#514555898648330260>. Try again!')
+			await ctx.send(f'Sorry {ctx.message.author.mention}, but you seem to be missing some <#694994576791961630> and an <#514555898648330260>. Try again!')
 	
 @bot.command()
-async def msg_back(ctx, arg1 : str, arg2):
+async def msg_back(ctx, arg1 : str,*, arg2):
 	dawdle = get_server(bot.guilds,'dawdle')
 	verifchannel = dawdle.get_channel(623016717429374986)
 	if ctx.message.channel == verifchannel:
@@ -421,9 +419,9 @@ async def msg_back(ctx, arg1 : str, arg2):
 
 
 @bot.command()
-async def vent(ctx,arg : str):
+async def vent(ctx,*,arg : str):
 	dawdle = get_server(bot.guilds,'dawdle')
-	botChannel = dawdle.get_channel(654787316665286714)
+	verifChannel = dawdle.get_channel(623016717429374986)
 	check_emoj = await dawdle.fetch_emoji(609771973341610033)
 	cross_emoj = await dawdle.fetch_emoji(609771973102534687)
 	ventChannel = dawdle.get_channel(514561071441248266)
@@ -431,7 +429,7 @@ async def vent(ctx,arg : str):
 	if not ctx.message.guild:
 		embedVent = discord.Embed(title='Vent',description = arg, color=0xffb6c1,timestamp = datetime.datetime.utcnow())
 		embedVent.set_footer(text=ctx.message.author.id)
-		ventMess = await botChannel.send(content=f'{staffrole.mention} Anonymous Vent',embed=embedVent)
+		ventMess = await verifChannel.send(content=f'{staffrole.mention} Anonymous Vent',embed=embedVent)
 		await ventMess.add_reaction(check_emoj)
 		await ventMess.add_reaction(cross_emoj)
 		try:
@@ -441,7 +439,8 @@ async def vent(ctx,arg : str):
 	elif ctx.message.channel == ventChannel:
 		for role in ctx.message.author.roles:
 			if role == staffrole:
-				ventMess = '<a:weewoo:598696151759192085> **Anonymous Venting** <a:weewoo:598696151759192085> \n \nHi I’m Dawdle! I’m here to forward any anonymous vents to our <#514561071441248266> channel. Some things before we get started is that this is entirely anonymous; staff will not see your name unless you do something that warrants us needing to know who you are. Please also note that this is __not__ a confessions bot and any sort of messages will be denied. This is meant for a more comfortable form of venting! Please read on for rules and instructions.  \n \n <a:weewoo:598696151759192085> **Anonymous Venting Rules** <a:weewoo:598696151759192085> \n \n <a:tinyheart:546404868529717270> 1. Any vent about another person in the server will be immediately denied. \n \n <a:tinyheart:546404868529717270> 2. Overtly sexual or explicit vents are not allowed. \n \n <a:tinyheart:546404868529717270> 3. __Dawdle rules apply__. Any suicide/self-harm references will be denied. \n \n <a:tinyheart:546404868529717270> 4. If you wish to vent and do not want any advice or responses write NA at the end of your vent. \n \n <a:tinyheart:546404868529717270> 5. While it is anonymous, staff can see user IDs and will warn/ban any user when necessary. \n \n <a:weewoo:598696151759192085> **Instructions on how to use** <a:weewoo:598696151759192085> \n \n <a:tinyheart:546404868529717270>  DM <@622553812221296696> using this format: \n >>> `/vent "Message"` \n \n__The double quotes around the message are important__, and make sure you __do not__ use double quotes elsewhere in the vent or I will get confused! \n \n `example:` /vent “Hello I am venting.” \n \n__You will get a confirmation message if the vent is sent to staff.__ If you do not get the confirmation message then you made a mistake in the command and should try again.'
+				await ctx.message.delete()
+				ventMess = '<a:weewoo:598696151759192085> **Anonymous Venting** <a:weewoo:598696151759192085> \n \nHi I’m Dawdle! I’m here to forward any anonymous vents to our <#514561071441248266> channel. Some things before we get started is that this is entirely anonymous; staff will not see your name unless you do something that warrants us needing to know who you are. Please also note that this is __not__ a confessions bot and any sort of messages will be denied. This is meant for a more comfortable form of venting! Please read on for rules and instructions.  \n \n <a:weewoo:598696151759192085> **Anonymous Venting Rules** <a:weewoo:598696151759192085> \n \n <a:tinyheart:546404868529717270> 1. Any vent about another person in the server will be immediately denied. \n \n <a:tinyheart:546404868529717270> 2. Overtly sexual or explicit vents are not allowed. \n \n <a:tinyheart:546404868529717270> 3. __Dawdle rules apply__. Any suicide/self-harm references will be denied. \n \n <a:tinyheart:546404868529717270> 4. If you wish to vent and do not want any advice or responses write NA at the end of your vent. \n \n <a:tinyheart:546404868529717270> 5. While it is anonymous, staff can see user IDs and will warn/ban any user when necessary. \n \n <a:weewoo:598696151759192085> **Instructions on how to use** <a:weewoo:598696151759192085> \n \n <a:tinyheart:546404868529717270>  DM <@622553812221296696> using this format: \n >>> `/vent Message` \n \n `example:` /vent Hello I am venting. \n \n__You will get a confirmation message if the vent is sent to staff.__ If you do not get the confirmation message then you made a mistake in the command and should try again.'
 				await ctx.send(ventMess)
 				break
 
@@ -457,11 +456,12 @@ async def check_intro(ctx):
 	age_roles = [dawdle.get_role(481138497856602113), dawdle.get_role(480080787253755905), dawdle.get_role(481138992151003156), dawdle.get_role(481138740484505611)]
 	pronoun_roles = [dawdle.get_role(551901787297284096),dawdle.get_role(551901739700322324),dawdle.get_role(551901812677017611)]
 	dm_roles = [dawdle.get_role(479410113115979805),dawdle.get_role(479410060804751371),dawdle.get_role(479410091905253376)]
-	rel_status_roles = [dawdle.get_role(519604158878449674), dawdle.get_role(481000924626681867), dawdle.get_role(481000858268467200)]
 	loc_roles = [dawdle.get_role(481135072427376641), dawdle.get_role(481135146129424415), dawdle.get_role(481135185497423900), dawdle.get_role(481135221572501516), dawdle.get_role(481135414321610763), dawdle.get_role(481135465399844882), dawdle.get_role(481136198014861336)]
 
 	if ctx.message.channel == botChannel:
-
+		def emoji_response(check):
+			if check == True: return '<:pinkcheck:609771973341610033>'
+			else: return '<:pinkx:609771973102534687>'	
 		for mem in verifiedRole.members:
 			has_intro = False
 			async for intro in introChannel.history(limit=None):
@@ -469,24 +469,26 @@ async def check_intro(ctx):
 					has_intro = True
 					break
 
-			check_age, check_pronoun, check_dm, check_rel, check_loc, has_dot = (False,)*6
+			check_age, check_pronoun, check_dm, check_loc, has_dot = (False,)*5
 			for role in mem.roles:
 				if role in age_roles: check_age = True
 				if role in pronoun_roles: check_pronoun = True
 				if role in dm_roles: check_dm = True
-				if role in rel_status_roles: check_rel = True
 				if role in loc_roles: check_loc = True
 				if role == dotrole: has_dot = True 
-			role_check = check_age and check_pronoun and check_dm and check_rel and check_loc
+			role_check = check_age and check_pronoun and check_dm and check_loc
+			intro_emoji = emoji_response(has_intro)
+			role_emoji = emoji_response(role_check)
 			if not mem.bot and (not has_intro or not role_check):
 				if has_dot:
-					await ctx.send(f'{mem.mention} already has dot role')
+					await ctx.send(f'{mem.mention} already has dot role. Intro: {intro_emoji} Roles: {role_emoji}')
 				else:
 					try:
 						await mem.add_roles(dotrole)
-						await ctx.send(f'Gave dot role to {mem.mention}')
-					except Forbidden:
-						await ctx.send(f'I do not have permission to give dot role to {mem.mention}')
+					except:
+						await ctx.send(f'I could not give dot role to {mem.mention}')
+					else:
+						await ctx.send(f'Gave dot role to {mem.mention}. Intro: {intro_emoji} Roles: {role_emoji}')
 		await ctx.send('Done checking for intros and roles')
 
 @bot.command()
@@ -559,21 +561,66 @@ async def lockdown(ctx,arg : str):
 		else:
 			await ctx.send('Please use \`/lockdown lock\` or \`/lockdown unlock\`')
 
-# @bot.command()
-# async def report(ctx, arg : str):
-# 	dawdle = get_server(bot.guilds,'dawdle')
-# 	botChannel = dawdle.get_channel(654787316665286714)
-# 	staffrole = dawdle.get_role(623220291882975292)
-# 	if not ctx.message.guild:
-# 		embedReport = discord.Embed(title='',description = "", color=0xffb6c1,timestamp = datetime.datetime.utcnow())
-# 		embedReport.add_field(name="Reporter",value=ctx.message.author.mention,inline=False)
-# 		embedReport.add_field(name="Content",value=arg,inline=False)
-# 		embedReport.set_footer(text=ctx.message.author)
-# 		repMess = await botChannel.send(content=f'{staffrole.mention} Report',embed=embedReport)
-# 		try:
-# 			await ctx.message.author.send('Your report has been sent to staff.')
-# 		except:
-# 			pass
+@bot.command()
+async def report(ctx, *, arg : str):
+	dawdle = get_server(bot.guilds,'dawdle')
+	verifChannel = dawdle.get_channel(623016717429374986)
+	staffrole = dawdle.get_role(519616340940554270)
+	if not ctx.message.guild:
+		embedReport = discord.Embed(title='Report',description = "", color=0xffb6c1,timestamp = datetime.datetime.utcnow())
+		embedReport.add_field(name="Reporter",value=ctx.message.author.mention,inline=False)
+		embedReport.add_field(name="Content",value=arg,inline=False)
+		embedReport.set_footer(text=ctx.message.author.id)
+		repMess = await verifChannel.send(content=f'{staffrole.mention} Report',embed=embedReport, )
+		for a in ctx.message.attachments:
+			embedReport = discord.Embed(title='Report',description = "", color=0xffb6c1,timestamp = datetime.datetime.utcnow())
+			embedReport.add_field(name="Reporter",value=ctx.message.author.mention,inline=False)
+			embedReport.set_image(url=a.url)
+			embedReport.set_footer(text=ctx.message.author.id)
+			await verifChannel.send(content=f'{staffrole.mention} Report',embed=embedReport)
+		try:
+			await ctx.message.author.send('Your report has been sent to staff.')
+		except:
+			pass
+
+@report.error
+async def report_error(ctx,error):
+	if isinstance(error,commands.errors.MissingRequiredArgument):
+		await ctx.send('It looks like you are sending a report. You need text after the `/report`. If you are sending images, then include `/report Image`')
+
+@bot.command()
+async def information(ctx):
+	if ctx.message.author.id == 267209579929141249:
+		dawdle = get_server(bot.guilds,'dawdle')
+		staffrole = dawdle.get_role(519616340940554270)
+		information = dawdle.get_channel(479407137060028449)
+		extra = discord.Embed(title="",description="<:dotmid:611226754123563008> [FAQ](https://discordapp.com/channels/475584392740339712/514560994337620008/685682260091076618)\n<:dotmid:611226754123563008> [Channel guide](https://discordapp.com/channels/475584392740339712/514560994337620008/686350526891294895) \n<:dotmid:611226754123563008> [How the economy works](https://discordapp.com/channels/475584392740339712/514560994337620008/693974955980881962)\n<:dotmid:611226754123563008> [Add your birthday to the bot!](https://discordapp.com/channels/475584392740339712/514560994337620008/685684422980272275)\n<:dotmid:611226754123563008> Couple roles are available to two consenting individuals in the server. \n<:dotmid:611226754123563008> Check channel descriptions, they can clear up any confusion regarding what can be posted in that channel. \n<:dotmid:611226754123563008> Nitro boosting allows you to add emojis to the server and to pick a color in roles.",color=0xffb6c1)
+		#extra.add_field(name='[FAQ]{https://discordapp.com/channels/475584392740339712/514560994337620008/685682260091076618}', value=' ', inline=False)
+		#extra.add_field(name='[How the economy works]{https://discordapp.com/channels/475584392740339712/514560994337620008/669961792058818600}', value=' ', inline=False)
+		#extra.add_field(name='[Add your birthday to the bot!]{https://discordapp.com/channels/475584392740339712/514560994337620008/685684422980272275}', value=' ', inline=False)
+		#extra.add_field(name='Check channel descriptions, they can clear up any confusion regarding what can be posted in that channel.', value=' ', inline=False)
+		#extra.add_field(name='Nitro boosting allows you to add emojis to the server and to pick a color in roles.', value=' ', inline=False)
+
+		def only_true(message):
+			return True
+		await information.purge(check=only_true)
+		await information.send(file=discord.File('Disclaimer_-_1000_wd.png'))
+		await information.send("<a:korbstar:546733206007840778> **Welcome to Dawdle** <a:korbstar:546733206007840778> \n \nWe pride ourselves on being an adult-ONLY server that emphasizes a wholesome, non-toxic atmosphere that is welcoming to all. Our priorities are to foster a supportive environment to create lasting friendships. \n \nPlease read all rules carefully, as ignorance to the rules is not an excuse for violating them. Please use common sense in areas not explicitly covered by rules and ask staff if you are unsure.")
+		await information.send(file=discord.File('Rules_-_1000_wd.png'))
+		await information.send("<a:pinkstar:663174593376419890> `Rule 1` **Accounts** \n > <:dotmid:611226754123563008> You must be 18+ to be in the server, and you must verify to stay in the server, no exceptions will be allowed. \n > <:dotdark:611226752466813040> After verifying, you need to get <#694994576791961630> and an <#514555898648330260>, when both of these are done type `/done` in <#514560994337620008> to complete the verifying process. If you lack a profile picture, you will be asked to get one at this time. \n > <:dotmid:611226754123563008> Alt accounts are not permitted. Do not try to bypass bans or mutes. \n<a:pinkstar:663174593376419890> `Rule 2` **Content** \n > <:dotdark:611226752466813040> Any form of hateful or discriminatory speech is not allowed.\n > <:dotmid:611226754123563008> Spamming is not permitted. This includes an excess amount of emojis, pictures, and individual lines of text. \n > <:dotdark:611226752466813040> Any credible threats to life, be it suicide or criminal violence, will not be tolerated in the server. We do not have appropriate resources to deal with topics of this magnitude and cannot be held responsible for someone’s physical well-being.\n > <:dotmid:611226754123563008> Jokes about being underaged are not tolerated, regardless if you are verified.")
+		await information.send("<a:pinkstar:663174593376419890> `Rule 3` **Conduct** \n > <:dotdark:611226752466813040> Check peoples roles. Respect people’s pronouns and dm preferences. \n > <:dotmid:611226754123563008> Being obnoxious, overbearing, and edgy is prohibited. This includes VC *and* chat. \n > <:dotdark:611226752466813040> Being creepy is not allowed. This includes sending unsolicited messages, and being overtly sexual constantly. \n > <:dotmid:611226754123563008> Leaving will reset your levels and require reverification. Leaving repeatedly will result in a ban. \n > <:dotdark:611226752466813040> Mass pinging unnecessarily will result in a ban. \n > <:dotmid:611226754123563008> Welcoming new members and saying hello to others is common courtesy here. Being cliquey is discouraged. Be nice to others, be nice to yourself. \n<a:pinkstar:663174593376419890> `Rule 4` **Channels** \n > <:dotmid:611226754123563008> <#514550733732053012> is strictly SFW. NSFW topics belong in <#529879816208384010>. \n > <:dotdark:611226752466813040> Keep channels on topic. Check channel descriptions for more details. \n > <:dotmid:611226754123563008> Our NSFW channels are for lvl 20+ members only. Inactivity in other channels or creepy behavior will get permissions revoked. NSFW permissions are granted at staff discretion, please dm staff for details. \n<a:pinkstar:663174593376419890> `Rule 5` **Advertising** \n > <:dotdark:611226752466813040> Self advertisement is not allowed, this includes dm advertisements. Asking for followers on social media and posting social media profiles are also prohibited. \n > <:dotmid:611226754123563008> No name dropping non-partnered servers or slandering partnered servers. \n<a:pinkstar:663174593376419890> `Rule 6` **Terms of Service** \n > <:dotdark:611226752466813040> Do not violate Discord's Terms of Service. \n > <:dotmid:611226754123563008> Doing so will result in staff reporting you to discord, as well as getting banned from here.")
+		await information.send(file=discord.File("Moderation_-_1000_wd.png"))
+		await information.send(f">>> <a:pinkstar:663174593376419890> Three warnings will result in a ban. While each situation is different, it is important to report anything that could be breaking the rules to a staff member. Please DM anyone with the {staffrole.mention} role with any server related issues. \n \n <a:pinkstar:663174593376419890> With all of that said, the server owner has the right to ban you for whatever they feel necessary. \n \n <a:pinkstar:663174593376419890> Inactive people will be pinged by staff in order to be checked in on, failure to answer to multiple pings will result in a kick for being a lurker.")
+		await information.send(file=discord.File("Verification_-_1000_wd.png"))
+		await information.send(">>> Verification of being 18+ ensures the security and safety of our members and our community as a whole from catfishing or other identity-related issues. To verify, send the items detailed below to <@622553812221296696>. You are able and encouraged to delete these pictures after verifying. \n \n`First Photo` You holding a piece of paper/sticky note with our server name, your discord tag (Name#0001), and the current date (MM/DD/YYYY). \n \n`Second Photo` A picture of your blurred-out ID with only your DOB and photo showing. All other information should be crossed out.")
+		await information.send(file=discord.File('image0.jpg'))
+		await information.send(file=discord.File('Partners_-_1000_wd.png'))
+		await information.send("We will partner with servers regardless of member count. If your server follows the requirements below, please contact <@291682666246307841> or <@381507393470857229>. \n > <:dotdark:611226752466813040> We will not ping, ever. \n > <:dotmid:611226754123563008> All NSFW content must be behind a wall of verification. \n > <:dotdark:611226752466813040> Must follow Terms of Service. \n > <:dotmid:611226754123563008> If you wish to stay as a representative of your server, you must verify. \n > <:dotdark:611226752466813040> If your link expires, it will be deleted. \n > <:dotmid:611226754123563008> All partners must follow the rules of the server, no exceptions will be made.")
+		await information.send(file=discord.File('Levels_-_1000_wd.png'))
+		await information.send("Levels are obtained by being active in channels. \n > <:dotdark:611226752466813040> **lvl 10** add reactions, access selfies, museum, and vc \n > <:dotmid:611226754123563008> **lvl 20** create instant invite, image perms \n > <:dotdark:611226752466813040> **lvl 30** check audit log, link perms \n > <:dotmid:611226754123563008> **lvl 40** select a color from roles")
+		await information.send(file=discord.File('Extra_-_1000_wd.png'))
+		await information.send(embed=extra)
+
 
 bot.run(token)
 
