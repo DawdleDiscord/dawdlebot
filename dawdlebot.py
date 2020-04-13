@@ -3,10 +3,11 @@ import datetime
 import asyncio
 import math
 from discord.ext.commands import Bot
-from discord.ext import commands
+from discord.ext import commands, tasks
 import gn_mess_dict
 import random
 from dawdle_vars import dawdletoken
+from db_birthdays import birthdays
 import json
 
 bot = Bot(command_prefix = '/')
@@ -24,6 +25,22 @@ def get_server(guilds,server):
 			return guild
 			break
 
+def is_staff():
+	async def predicate(ctx):
+		dawdle = ctx.guild
+		isStaff = False
+		for role in ctx.author.roles:
+			if role.id == 519616340940554270 or role.id == 490249474619211838:
+				isStaff = True
+				break
+		return isStaff
+	return commands.check(predicate)
+bot.add_cog(birthdays(bot))
+
+@bot.event
+async def on_command_error(ctx, error):
+	if isinstance(error,commands.errors.CommandNotFound):
+		await ctx.send('Huh?')
 
 @bot.event
 async def on_ready():
@@ -132,19 +149,21 @@ async def on_raw_reaction_add(payload):
 						await ventChannel.send(embed=embedVent)
 					elif verifEmoj.id == 609771973102534687:
 						ventMemb = await dawdle.fetch_member(ventMess.embeds[0].footer.text)
-						await ventMemb.send('<a:weewoo:598696151759192085> **Anonymous Venting Rules** <a:weewoo:598696151759192085> \n \n <a:tinyheart:546404868529717270> 1. Any vent about another person in the server will be immediately denied. \n \n <a:tinyheart:546404868529717270> 2. Overtly sexual or explicit vents are not allowed. \n \n <a:tinyheart:546404868529717270> 3. __Dawdle rules apply__. Any suicide/self-harm references will be denied. \n \n <a:tinyheart:546404868529717270> 4. If you wish to vent and do not want any advice or responses write NA at the end of your vent. \n \n <a:tinyheart:546404868529717270> 5. While it is anonymous, staff can see user IDs and will warn/ban any user when necessary. \n \n <a:weewoo:598696151759192085> **Instructions on how to use** <a:weewoo:598696151759192085> \n \n <a:tinyheart:546404868529717270>  DM <@622553812221296696> using this format: \n >>> `/vent "Message"` \n \n The quotes are important! \n \n `example:` /vent “Hello I am venting”')
+						await ventMemb.send('<a:weewoo:598696151759192085> **Anonymous Venting** <a:weewoo:598696151759192085> \n \nHi I’m Dawdle! I’m here to forward any anonymous vents to our <#514561071441248266> channel. Some things before we get started is that this is entirely anonymous; staff will not see your name unless you do something that warrants us needing to know who you are. Please also note that this is __not__ a confessions bot and any sort of messages will be denied. This is meant for a more comfortable form of venting! Please read on for rules and instructions.  \n \n <a:weewoo:598696151759192085> **Anonymous Venting Rules** <a:weewoo:598696151759192085> \n \n <a:tinyheart:546404868529717270> 1. Any vent about another person in the server will be immediately denied. \n \n <a:tinyheart:546404868529717270> 2. Overtly sexual or explicit vents are not allowed. \n \n <a:tinyheart:546404868529717270> 3. __Dawdle rules apply__. Any suicide/self-harm references will be denied. \n \n <a:tinyheart:546404868529717270> 4. If you wish to vent and do not want any advice or responses write NA at the end of your vent. \n \n <a:tinyheart:546404868529717270> 5. While it is anonymous, staff can see user IDs and will warn/ban any user when necessary. \n \n <a:weewoo:598696151759192085> **Instructions on how to use** <a:weewoo:598696151759192085> \n \n <a:tinyheart:546404868529717270>  DM <@622553812221296696> using this format: \n >>> `/vent Message` \n \n `example:` /vent Hello I am venting. \n \n__You will get a confirmation message if the vent is sent to staff.__ If you do not get the confirmation message then you made a mistake in the command and should try again.')
+
 
 @bot.event
 async def on_member_join(member):
 	dawdle = get_server(bot.guilds,'dawdle')
 	unverifrole = dawdle.get_role(479410607821684757)
 	foyerchannel = dawdle.get_channel(514554494495752204)
-	await foyerchannel.send(f'Welcome to dawdle, {member.mention}. Please read <#479407137060028449> to know how to access the rest of the server! Enjoy your stay.')
-	await member.add_roles(unverifrole)
-	try:
-		await member.send(f'Hi {member.name}, welcome to Dawdle! We\'re so happy to have you! Please read <#479407137060028449> for details on how to get verified so that the rest of the server can be opened up to you.\n \nVerification is required to stay, but we understand if you can\'t do it right away. <#514550733732053012> is open for you to talk and say hi before you verify so you can meet some of the great folks that we have! \n \n**When you\'re ready to verify, please send your items to me (this bot) so that a member of staff can review it and you can access more of the server!**')
-	except:
-		pass
+	if member.guild == dawdle:
+		await foyerchannel.send(f'Welcome to dawdle, {member.mention}. Please read <#479407137060028449> to know how to access the rest of the server! Enjoy your stay.')
+		await member.add_roles(unverifrole)
+		try:
+			await member.send(f'Hi {member.name}, welcome to Dawdle! We\'re so happy to have you! Please read <#479407137060028449> for details on how to get verified so that the rest of the server can be opened up to you.\n \nVerification is required to stay, but we understand if you can\'t do it right away. <#514550733732053012> is open for you to talk and say hi before you verify so you can meet some of the great folks that we have! \n \n**When you\'re ready to verify, please send your items to me (this bot) so that a member of staff can review it and you can access more of the server!**')
+		except:
+			pass
 
 
 
@@ -232,6 +251,11 @@ async def on_message(message):
 #	if message.channel == spamchannel and message.author == dbumpbot:
 #		print(message.embeds[0].description)
 
+	if "😂" in message.content.lower():
+		try:
+			await message.delete()
+		except:
+			pass
 
 
 	await bot.process_commands(message)
@@ -243,16 +267,17 @@ async def on_member_remove(member):
 	introChannel = dawdle.get_channel(514555898648330260)
 	verifrole = dawdle.get_role(481148097960083471)
 	verified = False
-	for role in member.roles:
-		if role == verifrole:
-			verified = True
-			break
-	if verified:
-		def is_user(message):
-			return message.author == member
-		deleted = await introChannel.purge(limit=None,check=is_user)
+	if member.guild == dawdle:
+		for role in member.roles:
+			if role == verifrole:
+				verified = True
+				break
+		if verified and member.id != 381507393470857229:
+			def is_user(message):
+				return message.author == member
+			deleted = await introChannel.purge(limit=None,check=is_user)
 
-	await foyerchannel.send(f'Bye {member.name}, you whore.')
+		await foyerchannel.send(f'Bye {member.name}, you whore.')
 
 # @bot.event
 # async def on_member_ban(dawdle,member):
@@ -320,7 +345,8 @@ async def on_voice_state_update(member, before, after):
 			del userAndDate[member.id]
 
 
-@bot.command()
+@bot.command(aliases=['bdaymonth'])
+@is_staff()
 async def cleanmembers(ctx,arg):
 	dawdle = get_server(bot.guilds,'dawdle')
 	staffrole = dawdle.get_role(519616340940554270)
@@ -354,7 +380,12 @@ async def cleanmembers(ctx,arg):
 
 			deleted = await selfieChannel.purge(limit=None,check=is_user)
 			await ctx.send(f'{ctx.message.author.mention} deleted {len(deleted)} of {membDel}\'s selfies')
-
+@cleanmembers.error
+async def cleanmembers_error(ctx,error):
+	if isinstance(error,commands.errors.CheckFailure):
+		await ctx.send('You do not have permissions to do this.')
+	else:
+		await ctx.send(f'I had an unknown error {str(error)}')
 
 @bot.command()
 async def done(ctx):
@@ -401,25 +432,25 @@ async def done(ctx):
 		else:
 			await ctx.send(f'Sorry {ctx.message.author.mention}, but you seem to be missing some <#694994576791961630> and an <#514555898648330260>. Try again!')
 	
-@bot.command()
-async def msg_back(ctx, arg1 : str,*, arg2):
+@bot.command(aliases=['mb','msgback','msg','message'])
+@is_staff()
+async def msg_back(ctx, member : discord.Member,*, message : str):
 	dawdle = get_server(bot.guilds,'dawdle')
 	verifchannel = dawdle.get_channel(623016717429374986)
 	if ctx.message.channel == verifchannel:
-		if ctx.message.mentions:
-			try: 
-				memb = ctx.message.mentions[0]
-				await memb.send(f"{arg2}")
-				await ctx.send(f'Message sent to {memb}.')
-			except Forbidden:
-				await verifchannel.send("Sorry, could not find that member or member has server DMs disabled")
-				pass
-		else:
-			await ctx.send('You did not mention a member.')
-
-
+		await member.send(message)
+		await ctx.send(f'Message sent to {member}.')
+@msg_back.error
+async def msg_back_error(ctx,error):
+	if isinstance(error,discord.Forbidden) or isinstance(error,discord.HTTPException):
+		await ctx.send('I was unable to send the message.')
+	elif isinstance(error,commands.errors.BadArgument):
+		await ctx.send('I could not find that member or too many members with that name.')
+	else:
+		await ctx.send(f'I had an unknown error {str(error)}.')
+		
 @bot.command()
-async def vent(ctx,*,arg : str):
+async def vent(ctx,*,vent_text : str):
 	dawdle = get_server(bot.guilds,'dawdle')
 	verifChannel = dawdle.get_channel(623016717429374986)
 	check_emoj = await dawdle.fetch_emoji(609771973341610033)
@@ -427,7 +458,7 @@ async def vent(ctx,*,arg : str):
 	ventChannel = dawdle.get_channel(514561071441248266)
 	staffrole = dawdle.get_role(519616340940554270)
 	if not ctx.message.guild:
-		embedVent = discord.Embed(title='Vent',description = arg, color=0xffb6c1,timestamp = datetime.datetime.utcnow())
+		embedVent = discord.Embed(title='Vent',description = vent_text, color=0xffb6c1,timestamp = datetime.datetime.utcnow())
 		embedVent.set_footer(text=ctx.message.author.id)
 		ventMess = await verifChannel.send(content=f'{staffrole.mention} Anonymous Vent',embed=embedVent)
 		await ventMess.add_reaction(check_emoj)
@@ -444,8 +475,13 @@ async def vent(ctx,*,arg : str):
 				await ctx.send(ventMess)
 				break
 
+@vent.error
+async def vent_error(ctx,error):
+	if isinstance(error,commands.errors.MissingRequiredArgument):
+		await ctx.send('It looks like you are sending a vent. You need text after the `/vent`!')
 
-@bot.command()
+@bot.command(aliases=['checkintro'])
+@is_staff()
 async def check_intro(ctx):
 	dawdle = get_server(bot.guilds,'dawdle')
 	dotrole = dawdle.get_role(587397534469718022)
@@ -490,20 +526,21 @@ async def check_intro(ctx):
 					else:
 						await ctx.send(f'Gave dot role to {mem.mention}. Intro: {intro_emoji} Roles: {role_emoji}')
 		await ctx.send('Done checking for intros and roles')
+@check_intro.error
+async def check_intro(ctx,error):
+	if isinstance(error,commands.errors.CheckFailure):
+		await ctx.send('You do not have permissions to do this.')
+	else:
+		await ctx.send(f'I had an unknown error {str(error)}')
 
-@bot.command()
+@bot.command(aliases=['kickrole'])
+@is_staff()
 async def kick_role(ctx,role,time : int):
 	dawdle = get_server(bot.guilds,'dawdle')
 	staffrole = dawdle.get_role(519616340940554270)
 	saintrole = dawdle.get_role(490249474619211838)
 	verifiedRole = dawdle.get_role(481148097960083471)
-	isStaff = False
-	for role in ctx.message.author.roles:
-		if	role == staffrole or role == saintrole:
-			isStaff = True
-			break
-
-	if isStaff and ctx.message.role_mentions:
+	if ctx.message.role_mentions:
 		if ctx.message.role_mentions[0] != verifiedRole:
 			mem_to_kick = []
 			time_seconds = time*3600
@@ -535,6 +572,11 @@ async def kick_role(ctx,role,time : int):
 					await ctx.send('Kick cancelled.')
 		else:
 			await ctx.send('You cannot kick the verified role!')
+@kick_role.error
+async def kick_role_error(ctx, error):
+	if isinstance(error,commands.errors.CheckFailure):
+		await ctx.send('You do not have permissions to do this.')
+	else: pass
 
 @bot.command()
 async def lockdown(ctx,arg : str):
@@ -562,14 +604,14 @@ async def lockdown(ctx,arg : str):
 			await ctx.send('Please use \`/lockdown lock\` or \`/lockdown unlock\`')
 
 @bot.command()
-async def report(ctx, *, arg : str):
+async def report(ctx, *, report_text : str):
 	dawdle = get_server(bot.guilds,'dawdle')
 	verifChannel = dawdle.get_channel(623016717429374986)
 	staffrole = dawdle.get_role(519616340940554270)
 	if not ctx.message.guild:
 		embedReport = discord.Embed(title='Report',description = "", color=0xffb6c1,timestamp = datetime.datetime.utcnow())
 		embedReport.add_field(name="Reporter",value=ctx.message.author.mention,inline=False)
-		embedReport.add_field(name="Content",value=arg,inline=False)
+		embedReport.add_field(name="Content",value=report_text,inline=False)
 		embedReport.set_footer(text=ctx.message.author.id)
 		repMess = await verifChannel.send(content=f'{staffrole.mention} Report',embed=embedReport, )
 		for a in ctx.message.attachments:
@@ -588,7 +630,7 @@ async def report_error(ctx,error):
 	if isinstance(error,commands.errors.MissingRequiredArgument):
 		await ctx.send('It looks like you are sending a report. You need text after the `/report`. If you are sending images, then include `/report Image`')
 
-@bot.command()
+@bot.command(aliases=['info'])
 async def information(ctx):
 	if ctx.message.author.id == 267209579929141249:
 		dawdle = get_server(bot.guilds,'dawdle')
@@ -610,18 +652,34 @@ async def information(ctx):
 		await information.send("<a:pinkstar:663174593376419890> `Rule 1` **Accounts** \n > <:dotmid:611226754123563008> You must be 18+ to be in the server, and you must verify to stay in the server, no exceptions will be allowed. \n > <:dotdark:611226752466813040> After verifying, you need to get <#694994576791961630> and an <#514555898648330260>, when both of these are done type `/done` in <#514560994337620008> to complete the verifying process. If you lack a profile picture, you will be asked to get one at this time. \n > <:dotmid:611226754123563008> Alt accounts are not permitted. Do not try to bypass bans or mutes. \n<a:pinkstar:663174593376419890> `Rule 2` **Content** \n > <:dotdark:611226752466813040> Any form of hateful or discriminatory speech is not allowed.\n > <:dotmid:611226754123563008> Spamming is not permitted. This includes an excess amount of emojis, pictures, and individual lines of text. \n > <:dotdark:611226752466813040> Any credible threats to life, be it suicide or criminal violence, will not be tolerated in the server. We do not have appropriate resources to deal with topics of this magnitude and cannot be held responsible for someone’s physical well-being.\n > <:dotmid:611226754123563008> Jokes about being underaged are not tolerated, regardless if you are verified.")
 		await information.send("<a:pinkstar:663174593376419890> `Rule 3` **Conduct** \n > <:dotdark:611226752466813040> Check peoples roles. Respect people’s pronouns and dm preferences. \n > <:dotmid:611226754123563008> Being obnoxious, overbearing, and edgy is prohibited. This includes VC *and* chat. \n > <:dotdark:611226752466813040> Being creepy is not allowed. This includes sending unsolicited messages, and being overtly sexual constantly. \n > <:dotmid:611226754123563008> Leaving will reset your levels and require reverification. Leaving repeatedly will result in a ban. \n > <:dotdark:611226752466813040> Mass pinging unnecessarily will result in a ban. \n > <:dotmid:611226754123563008> Welcoming new members and saying hello to others is common courtesy here. Being cliquey is discouraged. Be nice to others, be nice to yourself. \n<a:pinkstar:663174593376419890> `Rule 4` **Channels** \n > <:dotmid:611226754123563008> <#514550733732053012> is strictly SFW. NSFW topics belong in <#529879816208384010>. \n > <:dotdark:611226752466813040> Keep channels on topic. Check channel descriptions for more details. \n > <:dotmid:611226754123563008> Our NSFW channels are for lvl 20+ members only. Inactivity in other channels or creepy behavior will get permissions revoked. NSFW permissions are granted at staff discretion, please dm staff for details. \n<a:pinkstar:663174593376419890> `Rule 5` **Advertising** \n > <:dotdark:611226752466813040> Self advertisement is not allowed, this includes dm advertisements. Asking for followers on social media and posting social media profiles are also prohibited. \n > <:dotmid:611226754123563008> No name dropping non-partnered servers or slandering partnered servers. \n<a:pinkstar:663174593376419890> `Rule 6` **Terms of Service** \n > <:dotdark:611226752466813040> Do not violate Discord's Terms of Service. \n > <:dotmid:611226754123563008> Doing so will result in staff reporting you to discord, as well as getting banned from here.")
 		await information.send(file=discord.File("Moderation_-_1000_wd.png"))
-		await information.send(f">>> <a:pinkstar:663174593376419890> Three warnings will result in a ban. While each situation is different, it is important to report anything that could be breaking the rules to a staff member. Please DM anyone with the {staffrole.mention} role with any server related issues. \n \n <a:pinkstar:663174593376419890> With all of that said, the server owner has the right to ban you for whatever they feel necessary. \n \n <a:pinkstar:663174593376419890> Inactive people will be pinged by staff in order to be checked in on, failure to answer to multiple pings will result in a kick for being a lurker.")
+		await information.send(f">>> <a:pinkstar:663174593376419890> Three warnings will result in a ban. While each situation is different, it is important to report situations that are against our rules. Please DM <@622553812221296696> with `/report <message>`. Images can be included if `/report` is sent in the text. If the situation is sensitive please DM a staff member. \n \n <a:pinkstar:663174593376419890> With all of that said, the server owner has the right to ban you for whatever they feel necessary. \n \n <a:pinkstar:663174593376419890> Inactive people will be pinged by staff in order to be checked in on, failure to answer to multiple pings will result in a kick for being a lurker.")
 		await information.send(file=discord.File("Verification_-_1000_wd.png"))
 		await information.send(">>> Verification of being 18+ ensures the security and safety of our members and our community as a whole from catfishing or other identity-related issues. To verify, send the items detailed below to <@622553812221296696>. You are able and encouraged to delete these pictures after verifying. \n \n`First Photo` You holding a piece of paper/sticky note with our server name, your discord tag (Name#0001), and the current date (MM/DD/YYYY). \n \n`Second Photo` A picture of your blurred-out ID with only your DOB and photo showing. All other information should be crossed out.")
 		await information.send(file=discord.File('image0.jpg'))
 		await information.send(file=discord.File('Partners_-_1000_wd.png'))
 		await information.send("We will partner with servers regardless of member count. If your server follows the requirements below, please contact <@291682666246307841> or <@381507393470857229>. \n > <:dotdark:611226752466813040> We will not ping, ever. \n > <:dotmid:611226754123563008> All NSFW content must be behind a wall of verification. \n > <:dotdark:611226752466813040> Must follow Terms of Service. \n > <:dotmid:611226754123563008> If you wish to stay as a representative of your server, you must verify. \n > <:dotdark:611226752466813040> If your link expires, it will be deleted. \n > <:dotmid:611226754123563008> All partners must follow the rules of the server, no exceptions will be made.")
 		await information.send(file=discord.File('Levels_-_1000_wd.png'))
-		await information.send("Levels are obtained by being active in channels. \n > <:dotdark:611226752466813040> **lvl 10** add reactions, access selfies, museum, and vc \n > <:dotmid:611226754123563008> **lvl 20** create instant invite, image perms \n > <:dotdark:611226752466813040> **lvl 30** check audit log, link perms \n > <:dotmid:611226754123563008> **lvl 40** select a color from roles")
+		await information.send("Levels are obtained by being active in channels. \n > <:dotdark:611226752466813040> **lvl 10** add reactions, access selfies, museum, and vc \n > <:dotmid:611226754123563008> **lvl 20** create instant invite, image perms \n > <:dotdark:611226752466813040> **lvl 30** check audit log, link perms \n > <:dotmid:611226754123563008> **lvl 40** select a color from roles \n > <:dotdark:611226752466813040> **lvl 50** go live perms")
 		await information.send(file=discord.File('Extra_-_1000_wd.png'))
 		await information.send(embed=extra)
 
-
+@bot.command()
+@is_staff()
+async def rolecolor(ctx, role : discord.Role, newcolor : discord.Colour):
+	oldcolor = role.color
+	await role.edit(color=newcolor)
+	returnEmbed = discord.Embed(title=f"Changed the role color for {role.name} to {str(newcolor)}. Old color: {str(oldcolor)}.",color=newcolor)
+	await ctx.send(embed=returnEmbed)
+@rolecolor.error
+async def rolecolor_error(ctx,error):
+	if isinstance(error,commands.errors.BadArgument):
+		await ctx.send('I could not find that role or color.')
+	elif isinstance(error,commands.CommandInvokeError):
+		await ctx.send('I do not have permissions to change this role')
+	elif isinstance(error,commands.errors.CheckFailure):
+		await ctx.send('You do not have permissions to do this.')
+	else:
+		await ctx.send(f'I had an unknown error: {str(error)}')
 bot.run(token)
 
 
