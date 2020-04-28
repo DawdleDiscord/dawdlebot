@@ -8,7 +8,11 @@ import gn_mess_dict
 import random
 from dawdle_vars import dawdletoken
 from db_birthdays import birthdays
-import json
+from db_moderation import moderation
+from db_qotd import qotd
+from db_fuzzies import fuzzies
+from db_clean import clean
+import json,typing
 
 bot = Bot(command_prefix = '/')
 #List for times
@@ -19,6 +23,9 @@ token = dawdletoken
 GUILD1 = 'dawdle'
 GUILD2 = 'amertestserver'
 
+adminroles = [490249474619211838, 514556928655884298, 623220291882975292]
+modroles = adminroles.append(519632663246536736)
+
 def get_server(guilds,server):
 	for guild in guilds:
 		if guild.name == server:
@@ -26,7 +33,7 @@ def get_server(guilds,server):
 			break
 
 def is_staff():
-	async def predicate(ctx):
+	async def is_staff_predicate(ctx):
 		dawdle = ctx.guild
 		isStaff = False
 		for role in ctx.author.roles:
@@ -34,13 +41,32 @@ def is_staff():
 				isStaff = True
 				break
 		return isStaff
-	return commands.check(predicate)
+	return commands.check(is_staff_predicate)
+
+
 bot.add_cog(birthdays(bot))
+bot.add_cog(moderation(bot))
+bot.add_cog(qotd(bot))
+bot.add_cog(clean(bot))
 
 @bot.event
 async def on_command_error(ctx, error):
 	if isinstance(error,commands.errors.CommandNotFound):
 		await ctx.send('Huh?')
+	else:
+		testserver = get_server(bot.guilds, 'dawdle bot')
+		errorchannel = testserver.get_channel(701622624526139402)
+		errorEmbed = discord.Embed()
+		errorEmbed.add_field(name = 'User', value = ctx.author, inline = False)
+		errorEmbed.add_field(name= 'Message', value = ctx.message.content, inline = False)
+		errorEmbed.add_field(name= 'Error', value = error, inline = False)
+		await errorchannel.send(embed = errorEmbed)
+		print(error)
+
+with open('fuzzies.json', 'r') as json_f_r:
+	fuzz_dict = json.load(json_f_r)
+if fuzz_dict['onoff']:
+	bot.add_cog(fuzzies(bot))
 
 @bot.event
 async def on_ready():
@@ -49,6 +75,7 @@ async def on_ready():
 	game = discord.Game("say 'nini dawdle' for a goodnight message!")
 	await bot.change_presence(activity=game)
 	ventInstr = '<a:weewoo:598696151759192085> **Anonymous Venting Rules** <a:weewoo:598696151759192085> \n \n <a:tinyheart:546404868529717270> 1. Any vent about another person in the server will be immediately denied. \n \n <a:tinyheart:546404868529717270> 2. Overtly sexual or explicit vents are not allowed. \n \n <a:tinyheart:546404868529717270> 3. __Dawdle rules apply__. Any suicide/self-harm references will be denied. \n \n <a:tinyheart:546404868529717270> 4. If you wish to vent and do not want any advice or responses write NA at the end of your vent. \n \n <a:tinyheart:546404868529717270> 5. While it is anonymous, staff can see user IDs and will warn/ban any user when necessary. \n \n <a:weewoo:598696151759192085> **Instructions on how to use** <a:weewoo:598696151759192085> \n \n <a:tinyheart:546404868529717270>  DM <@622553812221296696> using this format: \n >>> `/vent "Message"` \n \n The quotes are important! \n \n `example:` /vent “Hello I am venting”'
+
 
 
 @bot.event
@@ -68,7 +95,7 @@ async def on_raw_reaction_add(payload):
 		cross_emoj = await dawdle.fetch_emoji(609771973102534687)
 		date_emoj = await dawdle.fetch_emoji(630533105903730689)
 		dawd_emoj = await dawdle.fetch_emoji(586767353740656656)
-		name_emoj = await dawdle.fetch_emoji(598695827891945472)	
+		name_emoj = await dawdle.fetch_emoji(598695827891945472)
 
 		for vr in verifMess.reactions:
 			if vr.count == 2 and verifMess.mentions and "verify" in verifMess.content:
@@ -95,6 +122,7 @@ async def on_raw_reaction_add(payload):
 				elif verifEmoj == name_emoj:
 
 					await userM.send("You're missing your discord name on the selfie picture!")
+
 
 #pin code
 	pinEmoj = await dawdle.fetch_emoji(491736157844144129)
@@ -218,8 +246,10 @@ async def on_message(message):
 				embedVar = discord.Embed(title='Verification', color=0xffb6c1,timestamp = datetime.datetime.utcnow())
 				embedVar.set_author(name=f'{message.author}',icon_url = message.author.avatar_url)
 				embedVar.set_image(url=a.url)
+				embedVar.add_field(name="Link",value=f"[Link to image]({a.url})")
 				embedVar.set_footer(text=f"ID: {message.author.id}")
-				await verifchannel.send(embed=embedVar)
+				verifImage = await verifchannel.send(embed=embedVar)
+
 			if message.attachments:
 				userM = message.author.mention
 				sentMess = await verifchannel.send(f'{staffrole.mention}, verify {userM}?')
@@ -345,7 +375,7 @@ async def on_voice_state_update(member, before, after):
 			del userAndDate[member.id]
 
 
-@bot.command(aliases=['bdaymonth'])
+@bot.command()
 @is_staff()
 async def cleanmembers(ctx,arg):
 	dawdle = get_server(bot.guilds,'dawdle')
@@ -464,7 +494,7 @@ async def vent(ctx,*,vent_text : str):
 		await ventMess.add_reaction(check_emoj)
 		await ventMess.add_reaction(cross_emoj)
 		try:
-			await ctx.message.author.send('Your vent has been sent to staff for approval.')
+			await ctx.message.author.send('Your vent has been sent to staff for approval. Sometimes although your vent may be fine, staff will wait to approve if someone else has vented recently.')
 		except:
 			pass
 	elif ctx.message.channel == ventChannel:
@@ -680,6 +710,53 @@ async def rolecolor_error(ctx,error):
 		await ctx.send('You do not have permissions to do this.')
 	else:
 		await ctx.send(f'I had an unknown error: {str(error)}')
+
+@bot.command()
+@is_staff()
+async def flashfuzzies(ctx, onoff : str, chnnl : typing.Optional[discord.TextChannel]):
+	with open('fuzzies.json', 'r') as json_f_r:
+		fuzz_dict = json.load(json_f_r)
+	if fuzz_dict['onoff']:
+		old_onoff = 'on'
+	else:
+		old_onoff = 'off'
+	if old_onoff != onoff and (onoff.lower() == 'on' or onoff.lower() == 'off'):
+		if onoff.lower() == 'on':
+			try:
+				fuzz_dict['channel'] = chnnl.id
+				fuzz_dict['onoff'] = True
+				try:
+					bot.add_cog(fuzzies(bot))
+				except discord.errors.ClientException:
+					pass
+
+				await ctx.send('Fuzzies has been turned on.')
+			except AttributeError:
+				await ctx.send('please specify a channel')
+
+			with open('fuzzies.json', 'w') as json_f_w:
+				json.dump(fuzz_dict, json_f_w)
+		else:
+			fuzz_dict['onoff'] = False
+			await ctx.send('Fuzzies has been turned off')
+			try: 
+				bot.remove_cog('fuzzies')
+			except:
+				pass
+			with open('fuzzies.json', 'w') as json_f_w:
+				json.dump(fuzz_dict, json_f_w)
+	elif old_onoff == onoff:
+		if old_onoff:
+			await ctx.send('Fuzzies is already turned on')
+		else: 
+			await ctx.send('Fuzzies is already off')
+
+@bot.command()
+@is_staff()
+async def cleanrestart(ctx):
+	bot.remove_cog('clean')
+	bot.add_cog(clean(bot))
+
 bot.run(token)
 
 
