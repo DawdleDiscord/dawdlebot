@@ -11,5 +11,6 @@ from .db_vent import db_vent
 from .db_VCtrack import db_VCtrack
 from .db_welcomegoodbye import db_welcomegoodbye
 from .db_converters import SmartMember
+from .db_pins import db_pins
 
 from .db_checks import is_mod

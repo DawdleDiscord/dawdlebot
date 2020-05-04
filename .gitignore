@@ -1,5 +1,5 @@
 #contains token
-.dawdle_vars.py
+dawdle_vars.py
 /src/data/*.json
 /src/db_modules/__pycache__
 *~

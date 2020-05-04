@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+import datetime
 
 class db_pins(commands.Cog):
 
@@ -11,7 +12,7 @@ class db_pins(commands.Cog):
 	async def on_raw_reaction_add(self, payload):
 
 
-		if payload.emoji.id == 491736157844144129 and payload.guild_id 475584392740339712 and not payload.channel_id in excluded_channels:
+		if payload.emoji.id == 491736157844144129 and payload.guild_id == 475584392740339712 and not payload.channel_id in self.excluded_channels:
 			korbIndex = 3
 			dawdle = self.bot.get_guild(475584392740339712)
 			srcChannel = dawdle.get_channel(payload.channel_id)

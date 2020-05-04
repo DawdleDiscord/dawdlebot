@@ -22,9 +22,14 @@ class qotd(commands.Cog):
 
 		await ctx.send('Question added!')
 
-	@commands.command()
+	@commands.group()
 	@is_mod()
-	async def getqotd(self, ctx, num : int):
+	async def qotd(self, ctx):
+		if ctx.invoked_subcommand is None:
+			await ctx.send('Invalid qotd command')
+
+	@qotd.command()
+	async def get(self, ctx, num : int):
 		with open('src/data/qotd.json', 'r') as json_file_r1:
 			qotdlist = json.load(json_file_r1)
 		qotdReq = qotdlist[:num]
@@ -38,14 +43,13 @@ class qotd(commands.Cog):
 		qotdEmbed = discord.Embed(title = 'QOTD', description = qotdReqStr, color=0xffb6c1)
 		await ctx.send(embed=qotdEmbed)
 
-	@getqotd.error
-	async def getqotd_error(self,ctx, error):
+	@get.error
+	async def get_error(self,ctx, error):
 		if isinstance(error,commands.errors.CommandInvokeError):
 			await ctx.send("You don't have any questions set up!")
 
-	@commands.command()
-	@is_mod()
-	async def removeqotd(self, ctx, num : int):
+	@qotd.command()
+	async def remove(self, ctx, num : int):
 		with open('src/data/qotd.json', 'r') as json_file_r3:
 			qotdlist = json.load(json_file_r3)
 
@@ -68,9 +72,8 @@ class qotd(commands.Cog):
 		with open('src/data/qotd.json', 'w') as json_file_w3:
 			json.dump(qotdlist,json_file_w3)
 
-	@commands.command()
-	@is_mod()
-	async def editqotd(self, ctx, num : int):
+	@qotd.command()
+	async def edit(self, ctx, num : int):
 		with open('src/data/qotd.json', 'r') as json_file_r4:
 			qotdlist = json.load(json_file_r4)
 
@@ -87,20 +90,19 @@ class qotd(commands.Cog):
 
 		with open('src/data/qotd.json', 'w') as json_file_w3:
 			json.dump(qotdlist,json_file_w3)
-	@commands.command()
-	@is_mod()
-	async def postqotd(self, ctx):
+	
+	@qotd.command()
+	async def post(self, ctx):
 		dawdle = ctx.guild
 		with open('src/data/qotd.json', 'r') as json_file_r5:
 			qotdlist = json.load(json_file_r5)
 
 		if qotdlist:
 			qotdchannel = dawdle.get_channel(687707466179411981)
-			qotdbanner = discord.File("qotdbanner.gif")
+			qotdbanner = discord.File("src/images/qotdbanner.png")
 			await qotdchannel.send(file=qotdbanner)
-			qotdbanner = discord.File("qotdbanner.gif")
-			await qotdchannel.send(content=f'**Question of the Day**',file=qotdbanner)
-			await qotdchannel.send(qotdlist[0])
+			qotdbanner = discord.File("src/images/qotdbanner.png")
+			await qotdchannel.send(content=f'**Question of the Day**\n \n{qotdlist[0]}',file=qotdbanner)
 			del qotdlist[0]
 			await ctx.send('qotd posted!')
 
@@ -123,11 +125,10 @@ class qotd(commands.Cog):
 				qotdlist = json.load(json_file_r2)
 
 			if qotdlist:
-				qotdbanner = discord.File("qotdbanner.gif")
+				qotdbanner = discord.File("src/images/qotdbanner.png")
 				await qotdchannel.send(file=qotdbanner)
-				qotdbanner = discord.File("qotdbanner.gif")
-				await qotdchannel.send(content=f'**Question of the Day**',file=qotdbanner)
-				await qotdchannel.send(qotdlist[0])
+				qotdbanner = discord.File("src/images/qotdbanner.png")
+				await qotdchannel.send(content=f'**Question of the Day** \n \n{qotdlist[0]}',file=qotdbanner)
 				del qotdlist[0]
 
 				with open('src/data/qotd.json', 'w') as json_file_w2:
