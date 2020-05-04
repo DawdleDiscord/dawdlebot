@@ -9,7 +9,7 @@ from discord.ext import commands, tasks
 import gn_mess_dict
 import random
 from dawdle_vars import dawdletoken
-from src.db_modules import birthdays,moderation,qotd,fuzzies,clean,verification,members,db_autoreact,db_roles,db_vent,db_VCtrack,db_welcomegoodbye
+from src.db_modules import birthdays,moderation,qotd,fuzzies,clean,verification,members,db_autoreact,db_roles,db_vent,db_VCtrack,db_welcomegoodbye,db_pins
 from src.db_modules import SmartMember
 
 import json,typing
@@ -47,6 +47,7 @@ bot.add_cog(db_roles(bot))
 bot.add_cog(db_vent(bot))
 bot.add_cog(db_VCtrack(bot))
 bot.add_cog(db_welcomegoodbye(bot))
+bot.add_cog(db_pins(bot))
 
 # with open('src/data/db_config.json', 'r') as json_file:
 # 	config = json.load(json_file)
@@ -71,21 +72,25 @@ bot.add_cog(db_welcomegoodbye(bot))
 #with open('src/data/db_config.json', 'w') as json_file:
 #	json.dump(config, json_file)
 
-@bot.event
-async def on_command_error(ctx, error):
-	if isinstance(error,commands.errors.CommandNotFound):
-		await ctx.send('Huh?')
-	else:
-		testserver = get_server(bot.guilds, 'dawdle bot')
-		errorchannel = testserver.get_channel(701622624526139402)
-		errorEmbed = discord.Embed()
-		if ctx.author:
-			errorEmbed.add_field(name = 'User', value = ctx.author, inline = False)
-		if ctx.message.content:
-			errorEmbed.add_field(name= 'Message', value = ctx.message.content, inline = False)
-		errorEmbed.add_field(name= 'Error', value = error, inline = False)
-		await errorchannel.send(embed = errorEmbed)
-		print(error)
+@bot.command()
+async def sayhi(ctx, member : SmartMember):
+	await ctx.send(f'hi {member.mention}')
+
+# @bot.event
+# async def on_command_error(ctx, error):
+# 	if isinstance(error,commands.errors.CommandNotFound):
+# 		await ctx.send('Huh?')
+# 	else:
+# 		testserver = get_server(bot.guilds, 'dawdle bot')
+# 		errorchannel = testserver.get_channel(701622624526139402)
+# 		errorEmbed = discord.Embed()
+# 		if ctx.author:
+# 			errorEmbed.add_field(name = 'User', value = ctx.author, inline = False)
+# 		if ctx.message.content:
+# 			errorEmbed.add_field(name= 'Message', value = ctx.message.content, inline = False)
+# 		errorEmbed.add_field(name= 'Error', value = error, inline = False)
+# 		await errorchannel.send(embed = errorEmbed)
+# 		print(error)
 
 with open('src/data/fuzzies.json', 'r') as json_f_r:
 	fuzz_dict = json.load(json_f_r)
