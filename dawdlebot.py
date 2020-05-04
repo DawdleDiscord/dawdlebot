@@ -172,7 +172,13 @@ async def on_raw_reaction_add(payload):
 				if vr.emoji == verifEmoj and vr.count == 2:
 					if verifEmoj.id == 609771973341610033:
 						embedVent = ventMess.embeds[0]
-						embedVent.title = ''
+						ventnum = 1
+						async for dmess in ventChannel.history(limit=200):
+							if dmess.author.bot and dmess.embeds and len(dmess.embeds[0].title) > 5:
+								ventnum = int(dmess.embeds[0].title[16:]) + 1
+								break
+
+						embedVent.title = 'Anonymous Vent #'+str(ventnum)
 						embedVent.set_footer(text='')
 						await ventChannel.send(embed=embedVent)
 					elif verifEmoj.id == 609771973102534687:
@@ -751,11 +757,6 @@ async def flashfuzzies(ctx, onoff : str, chnnl : typing.Optional[discord.TextCha
 		else: 
 			await ctx.send('Fuzzies is already off')
 
-@bot.command()
-@is_staff()
-async def cleanrestart(ctx):
-	bot.remove_cog('clean')
-	bot.add_cog(clean(bot))
 
 bot.run(token)
 
