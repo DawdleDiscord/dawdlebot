@@ -58,7 +58,7 @@ class moderation(commands.Cog):
 
 	@commands.command()
 	@is_mod()
-	async def prune(self, ctx, num : int,*, user : typing.Optional[discord.User]):
+	async def prune(self, ctx, num : int,*, user : typing.Optional[typing.Union[SmartMember, int]]):
 		toprune = num + 1
 		if num < 100:
 			if not user:
@@ -66,6 +66,10 @@ class moderation(commands.Cog):
 				pruneEmbed = discord.Embed(title=f'Pruned {num} messages.', color=0xffb6c1)
 
 			else:
+				if isinstance(user, int):
+					user_id = user
+					user = await self.bot.fetch_user(user_id)
+
 				def is_user(m):
 					return m.author == user
 				await ctx.channel.purge(limit = toprune, check = is_user)

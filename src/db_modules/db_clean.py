@@ -20,7 +20,7 @@ class clean(commands.Cog):
 		if message.guild and message.channel.id in self.channellist:
 			is_command = False
 			for pref in self.botprefixes:
-				if message.content.startswith(pref):
+				if message.content.startswith(pref) and message.content[1] != '~':
 					is_command = True
 					break
 			if message.author.bot or is_command:

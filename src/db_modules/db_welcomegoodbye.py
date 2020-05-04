@@ -18,8 +18,8 @@ class db_welcomegoodbye(commands.Cog):
 				await member.send(f'Hi {member.name}, welcome to Dawdle! We\'re so happy to have you! Please read <#479407137060028449> for details on how to get verified so that the rest of the server can be opened up to you.\n \nVerification is required to stay, but we understand if you can\'t do it right away. <#514550733732053012> is open for you to talk and say hi before you verify so you can meet some of the great folks that we have! \n \n**When you\'re ready to verify, please send your items to me (this bot) so that a member of staff can review it and you can access more of the server!**')
 			except:
 				pass
-		countchannel = dawdle.get_channel(705498700771754054)
-        await countchannel.edit(name=f'members: {dawdle.member_count}')
+		#countchannel = dawdle.get_channel(705498700771754054)
+        #await countchannel.edit(name=f'members: {dawdle.member_count}')
 
 	@commands.Cog.listener()
 	async def on_member_remove(self, member):
@@ -39,5 +39,5 @@ class db_welcomegoodbye(commands.Cog):
 				deleted = await introChannel.purge(limit=None,check=is_user)
 
 			await foyerchannel.send(f'Bye {member.name}, you whore.')
-		countchannel = dawdle.get_channel(705498700771754054)
-        await countchannel.edit(name=f'members: {dawdle.member_count}')
+		#countchannel = dawdle.get_channel(705498700771754054)
+        #await countchannel.edit(name=f'members: {dawdle.member_count}')

@@ -21,6 +21,7 @@ class members(commands.Cog):
 			dawdle = ctx.guild
 			verifiedrole = dawdle.get_role(481148097960083471)
 			introchannel = dawdle.get_channel(514555898648330260)
+			await ctx.send('Checking for roles and intros... this may take a bit.')
 			def emoji_response(check):
 				if check == True: 
 					return '<:pinkcheck:609771973341610033>'

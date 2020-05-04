@@ -18,18 +18,18 @@ class SmartMember(commands.Converter):
 				return ""
 		is_id = try_int(arg)
 		if is_id: 
+
 			member = ctx.guild.get_member(int(arg))
 			if member:
 				return member
 			else:
 				raise commands.BadArgument
 		elif ctx.message.mentions:
-			for ment in ctx.message.mentions:
-				if ment.mention == arg:
-					return ment
+			return ctx.message.mentions[0]
 
 		else:
-			member_iterator = filter(lambda m: arg.lower() in m.name.lower() or arg.lower() in try_lower(m.nick), ctx.guild.members)
+	
+			member_iterator = filter(lambda m: arg.lower() in str(m).lower() or arg.lower() in try_lower(m.nick), ctx.guild.members)
 			memberlist = list(member_iterator)
 			if len(memberlist) == 0:
 				raise commands.BadArgument
