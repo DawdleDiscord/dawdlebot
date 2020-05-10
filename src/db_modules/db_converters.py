@@ -17,7 +17,7 @@ class SmartMember(commands.Converter):
 			except AttributeError:
 				return ""
 		is_id = try_int(arg)
-		if is_id: 
+		if is_id:
 
 			member = ctx.guild.get_member(int(arg))
 			if member:
@@ -28,7 +28,7 @@ class SmartMember(commands.Converter):
 			return ctx.message.mentions[0]
 
 		else:
-	
+
 			member_iterator = filter(lambda m: arg.lower() in str(m).lower() or arg.lower() in try_lower(m.nick), ctx.guild.members)
 			memberlist = list(member_iterator)
 			if len(memberlist) == 0:
@@ -57,3 +57,48 @@ class SmartMember(commands.Converter):
 						raise commands.BadArgument
 					else:
 						return memberlist[int(confirm.content) - 1]
+
+class SmartRole(commands.Converter):
+
+
+	async def convert(self, ctx, arg):
+		def try_int(string):
+			try:
+				int(string)
+				return True
+			except ValueError:
+				return False
+
+		if ctx.message.role_mentions:
+			return ctx.message.role_mentions[0]
+		else:
+
+			role_iterator = filter(lambda r: arg.lower() in str(r).lower() or str(arg) == str(r.id), ctx.guild.roles)
+			rolelist = list(role_iterator)
+
+			if len(rolelist) == 0:
+				raise commands.BadArgument
+			elif len(rolelist) == 1:
+				return rolelist[0]
+			else:
+				rolelist_str = []
+				for r in range(len(rolelist)):
+					num = r + 1
+					r_str = f"[{num}] {rolelist[r]}"
+					rolelist_str.append(r_str)
+				rolelistEmbed = discord.Embed(title="Select a member or type 'cancel'.", description = '\n'.join(rolelist_str), color=0xffb6c1)
+				await ctx.send(embed=rolelistEmbed)
+
+				def role_pick(m):
+					return m.author == ctx.author and m.channel == ctx.channel and (try_int(m.content) or m.content.lower() == "cancel")
+				try:
+					confirm = await ctx.bot.wait_for('message', check=role_pick, timeout = 60.0)
+				except asyncio.TimeoutError:
+					await ctx.send('Role select timed out')
+					raise commands.BadArgument
+				else:
+					if confirm.content.lower() == "cancel":
+						await ctx.send('Selection canceled.')
+						raise commands.BadArgument
+					else:
+						return rolelist[int(confirm.content) - 1]
