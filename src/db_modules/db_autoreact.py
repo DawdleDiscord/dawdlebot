@@ -77,8 +77,8 @@ class db_autoreact(commands.Cog):
 	async def on_message(self, message):
 		if message.guild and message.guild.id == 475584392740339712:
 			dawdle = message.guild
-			if message.channel.id in self.reacts_dict.keys():
-				for emoji in self.reacts_dict[message.channel.id]:
+			if str(message.channel.id) in self.reacts_dict.keys():
+				for emoji in self.reacts_dict[str(message.channel.id)]:
 					await message.add_reaction(emoji)
 
 

@@ -9,24 +9,24 @@ class qotd(commands.Cog):
 	def __init__(self,bot):
 		self.bot = bot
 		self.qotdcheck.start()
-	@commands.command()
+	@commands.group()
 	@is_mod()
-	async def addqotd(self, ctx, *, question : str):
+	async def qotd(self, ctx):
+		if ctx.invoked_subcommand is None:
+			await ctx.send('Invalid qotd command')
+
+	@qotd.command()
+	@is_mod()
+	async def add(self, ctx, *, question : str):
 		with open('src/data/qotd.json', 'r') as json_file_r0:
 			qotdlist = json.load(json_file_r0)
-		
+
 		qotdlist.append(question)
 
 		with open('src/data/qotd.json', 'w') as json_file_w0:
 			json.dump(qotdlist,json_file_w0)
 
 		await ctx.send('Question added!')
-
-	@commands.group()
-	@is_mod()
-	async def qotd(self, ctx):
-		if ctx.invoked_subcommand is None:
-			await ctx.send('Invalid qotd command')
 
 	@qotd.command()
 	async def get(self, ctx, num : int):
@@ -90,7 +90,7 @@ class qotd(commands.Cog):
 
 		with open('src/data/qotd.json', 'w') as json_file_w3:
 			json.dump(qotdlist,json_file_w3)
-	
+
 	@qotd.command()
 	async def post(self, ctx):
 		dawdle = ctx.guild
@@ -136,7 +136,3 @@ class qotd(commands.Cog):
 			else:
 				commandchannel = dawdle.get_channel(654787316665286714)
 				await commandchannel.send("I didn't have a QOTD to post today! you'll have to do it manually")
-
-
-
-

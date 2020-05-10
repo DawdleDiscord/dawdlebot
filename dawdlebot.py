@@ -2,21 +2,23 @@ import discord
 import datetime
 import asyncio
 import math
-import sys
+import os
+from dotenv import load_dotenv
+load_dotenv()
 #sys.path.append('/src')
 from discord.ext.commands import Bot
 from discord.ext import commands, tasks
 import gn_mess_dict
 import random
-from dawdle_vars import dawdletoken
-from src.db_modules import birthdays,moderation,qotd,fuzzies,clean,verification,members,db_autoreact,db_roles,db_vent,db_VCtrack,db_welcomegoodbye,db_pins
+#from dawdle_vars import dawdletoken
+from src.db_modules import birthdays,moderation,qotd,fuzzies,clean,verification,members,db_autoreact,db_roles,db_vent,db_VCtrack,db_welcomegoodbye,db_pins,db_info
 from src.db_modules import SmartMember
 
 import json,typing
 
 bot = Bot(command_prefix = '~')
 
-token = dawdletoken
+token = os.getenv('dawdletoken')
 
 
 def get_server(guilds,server):
@@ -48,6 +50,7 @@ bot.add_cog(db_vent(bot))
 bot.add_cog(db_VCtrack(bot))
 bot.add_cog(db_welcomegoodbye(bot))
 bot.add_cog(db_pins(bot))
+bot.add_cog(db_info(bot))
 
 # with open('src/data/db_config.json', 'r') as json_file:
 # 	config = json.load(json_file)
@@ -72,9 +75,6 @@ bot.add_cog(db_pins(bot))
 #with open('src/data/db_config.json', 'w') as json_file:
 #	json.dump(config, json_file)
 
-@bot.command()
-async def sayhi(ctx, member : SmartMember):
-	await ctx.send(f'hi {member.mention}')
 
 # @bot.event
 # async def on_command_error(ctx, error):
@@ -116,7 +116,7 @@ async def on_message(message):
 	introchannel = dawdle.get_channel(514555898648330260)
 	if message.channel == introchannel:
 		def is_old_intro(mess2):
-			return mess2.author == message.author and mess2.id != message.id and mess2.author.id != 381507393470857229 
+			return mess2.author == message.author and mess2.id != message.id and mess2.author.id != 381507393470857229
 		deleted_intro = await introchannel.purge(limit=None,check=is_old_intro)
 
 	#Goodnight messages
@@ -137,8 +137,8 @@ async def on_message(message):
 	await bot.process_commands(message)
 
 
-@bot.command(aliases=['info'])
-async def information(ctx):
+@bot.command()
+async def dawdle_information(ctx):
 	if ctx.message.author.id == 267209579929141249:
 		dawdle = get_server(bot.guilds,'dawdle')
 		staffrole = dawdle.get_role(519616340940554270)
@@ -199,7 +199,7 @@ async def flashfuzzies(ctx, onoff : str, chnnl : typing.Optional[discord.TextCha
 		else:
 			fuzz_dict['onoff'] = False
 			await ctx.send('Fuzzies has been turned off')
-			try: 
+			try:
 				bot.remove_cog('fuzzies')
 			except:
 				pass
@@ -208,12 +208,8 @@ async def flashfuzzies(ctx, onoff : str, chnnl : typing.Optional[discord.TextCha
 	elif old_onoff == onoff:
 		if old_onoff:
 			await ctx.send('Fuzzies is already turned on')
-		else: 
+		else:
 			await ctx.send('Fuzzies is already off')
 
 
 bot.run(token)
-
-
-
-

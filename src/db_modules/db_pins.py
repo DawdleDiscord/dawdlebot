@@ -32,7 +32,7 @@ class db_pins(commands.Cog):
 								pinnedMess = pins
 								break
 						if not pinned:
-							embedmess = discord.Embed(title="",value="",color=0xffb6c1,timestamp = datetime.datetime.utcnow())
+							embedmess = discord.Embed(title="",value="",color=0xffb6c1,timestamp = srcMess.created_at)
 							embedmess.set_thumbnail(url=r.message.author.avatar_url)
 							embedmess.add_field(name='Author', value = r.message.author.mention, inline = False)
 							embedmess.add_field(name='Channel', value=r.message.channel.mention, inline = False)

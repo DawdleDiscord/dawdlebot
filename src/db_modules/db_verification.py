@@ -23,7 +23,7 @@ class verification(commands.Cog):
 	# 		for emoj in self.verif_dict.keys():
 	# 			reactemoj = dawdle.fetch_emoji
 	# 	embedList = discord.Embed(title = 'Emoji List')
-	
+
 	@commands.Cog.listener()
 	async def on_message(self, message):
 		if not message.guild:
@@ -71,12 +71,12 @@ class verification(commands.Cog):
 			message = await verifchannel.fetch_message(payload.message_id)
 
 			if message.mentions and "verify" in message.content:
-				
+
 				for react in message.reactions:
-					
+
 					if react.count == 2:
 						user = message.mentions[0]
-						
+
 						if str(react.emoji) == '<:pinkcheck:609771973341610033>':
 
 							verifiedrole = dawdle.get_role(481148097960083471)
@@ -142,7 +142,6 @@ class verification(commands.Cog):
 				else:
 					await ctx.send(f'Sorry {ctx.message.author.mention}, but you seem to be missing some <#694994576791961630> and an <#514555898648330260>. Try again!')
 	@commands.command(aliases=['mb','msgback','msg','message'])
-	@is_mod()
 	async def msg_back(self, ctx, member : SmartMember,*, message : str):
 		if ctx.guild:
 			dawdle = ctx.guild
@@ -157,7 +156,4 @@ class verification(commands.Cog):
 		elif isinstance(error,commands.errors.BadArgument):
 			await ctx.send('I could not find that member or too many members with that name.')
 		else:
-			await ctx.send(f'I had an unknown error {str(error)}.')
-
-
-
+			await ctx.send(f'I had an unknown error {str(error)}')

@@ -9,7 +9,7 @@ class birthdays(commands.Cog):
 	def __init__(self,bot):
 		self.bot = bot
 		self.birthdaycheck.start()
-	
+
 	def cog_unload(self):
 		self.birthdaycheck.cancel()
 
@@ -21,7 +21,7 @@ class birthdays(commands.Cog):
 				if guild.name == 'dawdle':
 					dawdle = guild
 					break
-			
+
 			todaymonth = rightnow.month
 			todayday = rightnow.day
 			birthdayrole = dawdle.get_role(535390006374825984)
@@ -80,7 +80,7 @@ class birthdays(commands.Cog):
 				json.dump(bday_dict, json_file_w)
 		else:
 			await ctx.send(f'Please enter a valid birthday in `<day> <month>` format.')
-	
+
 	@addbirthday.error
 	async def addbirthday_error(self, ctx, error):
 		if isinstance(error,commands.errors.MissingRequiredArgument) or isinstance(error,commands.errors.BadArgument):
@@ -101,7 +101,11 @@ class birthdays(commands.Cog):
 			bday_dict = json.load(json_file_2)
 			for memid in bday_dict:
 				if bday_dict[memid]['month'] == month:
-					memname = dawdle.get_member(int(memid)).name
+					memname = dawdle.get_member(int(memid))
+					if memname:
+						memname = memname.name
+					else:
+						memname = '[user left]'
 					memday = bday_dict[memid]['day']
 					monthbdaydict[memname] = int(memday)
 			for bd in sorted(monthbdaydict.items(), key=lambda x: x[1]):
@@ -110,7 +114,7 @@ class birthdays(commands.Cog):
 				bdaylistname = bdaylistname+f"-{months[month-1][:3]} {bd[1]}"
 				bdaylist.append(bdaylistname)
 		s = '\n'
-		
+
 		if len(bdaylist) == 0:
 			finalbdaylist = f'No birthdays in {months[month-1]}'
 			await ctx.send(finalbdaylist)
@@ -121,6 +125,25 @@ class birthdays(commands.Cog):
 	@birthdaymonth.error
 	async def birthdaymont_error(self, ctx, error):
 		await ctx.send('Error: Please enter a valid month')
+		print(error)
+
+	@commands.command()
+	async def birthdayclean(self,ctx):
+		with open('src/data/birthdays.json', 'r') as json_file:
+			bday_dict = json.load(json_file)
+		toremove = []
+		confirm = await ctx.send('Cleaning birthdays')
+		for id in bday_dict.keys():
+			if not ctx.guild.get_member(int(id)):
+				toremove.append(id)
+		for rem in toremove:
+			del bday_dict[rem]
+		if len(toremove) > 0:
+			with open('src/data/birthdays.json', 'w') as json_file:
+				json.dump(bday_dict,json_file)
+
+		await confirm.edit(content=f"Cleaned {len(toremove)} former members.")
+
 
 	@commands.Cog.listener()
 	async def on_member_remove(self, member):
@@ -136,4 +159,3 @@ class birthdays(commands.Cog):
 			if dict_changed:
 				with open('src/data/birthdays.json', 'w') as json_file_w3:
 					json.dump(bday_dict, json_file_w3)
-

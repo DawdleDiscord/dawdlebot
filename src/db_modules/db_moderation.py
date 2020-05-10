@@ -83,7 +83,7 @@ class moderation(commands.Cog):
 	async def lockdown(self, ctx):
 		if ctx.invoked_subcommand is None:
 			await ctx.send('Invalid lockdown command')
-	
+
 	@lockdown.command()
 	async def lock(self, ctx):
 		if ctx.guild:
@@ -134,8 +134,12 @@ class moderation(commands.Cog):
 			await ctx.send('It looks like you are sending a report. You need text after the `/report`.')
 
 
-	async def cog_command_error(self, ctx,error):
+	async def cog_command_error(self, ctx, error):
 		if isinstance(error,commands.errors.BadArgument):
 			await ctx.send('I could not find this member or user.')
 		elif isinstance(error,commands.errors.CheckFailure):
 			await ctx.send('you do not have permissions to do this')
+		elif isinstance(error, commands.BadUnionArgument):
+			await ctx.send('I could not find this member. If they are not in the server currently then use their ID.')
+		else:
+			await ctx.send(f'Error: {str(error)}')
