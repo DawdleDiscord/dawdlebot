@@ -12,7 +12,7 @@ from .db_VCtrack import db_VCtrack
 from .db_welcomegoodbye import db_welcomegoodbye
 from .db_pins import db_pins
 from .db_info import db_info
-
+from .db_responses import db_responses
 from .db_converters import SmartMember
 from .db_converters import SmartRole
 
