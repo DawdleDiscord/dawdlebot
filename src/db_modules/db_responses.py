@@ -103,10 +103,9 @@ class db_responses(commands.Cog):
         self.bot=bot
     @commands.Cog.listener()
     async def on_message(self, message):
-        if message.channel and 'goodmorning dawdle' in message.content.lower() or 'gm dawdle' in message.content.lower():
+        if message.channel and not message.author.bot and 'goodmorning dawdle' in message.content.lower() or 'gm dawdle' in message.content.lower():
             await message.author.send(random.choice(gm_mess['gmdawdle']))
-        elif message.channel and ('nini dawdle' in message.content.lower()):
+        elif message.channel and not message.author.bot and ('nini dawdle' in message.content.lower()):
             await message.author.send(random.choice(gn_mess['nini_mess']))
-        await self.bot.process_commands(message)
         if message.guild is None and message.content.lower() in ['hi', 'hello', 'hey']:
             await message.author.send('Hi, I\'m Dawdle!')

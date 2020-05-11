@@ -86,7 +86,7 @@ class SmartRole(commands.Converter):
 					num = r + 1
 					r_str = f"[{num}] {rolelist[r]}"
 					rolelist_str.append(r_str)
-				rolelistEmbed = discord.Embed(title="Select a member or type 'cancel'.", description = '\n'.join(rolelist_str), color=0xffb6c1)
+				rolelistEmbed = discord.Embed(title="Select a role or type 'cancel'.", description = '\n'.join(rolelist_str), color=0xffb6c1)
 				await ctx.send(embed=rolelistEmbed)
 
 				def role_pick(m):

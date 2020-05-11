@@ -138,24 +138,33 @@ class db_info(commands.Cog):
     @commands.command()
     @is_mod()
     async def sendinfo(self, ctx, member : SmartMember, topic : str, subtopic : typing.Optional[str]):
-        if topic and topic in self.info_dict and (not subtopic or not subtopic in self.info_dict[topic]):
+        topickey = None
+        subtopickey = None
+        if topic:
+            topickey = self.lowercase_keys_get(self.info_dict, topic)
+        if topickey and subtopic:
+            subtopickey = self.lowercase_keys_get(self.info_dict[topickey], subtopic)
+
+        if topic and topickey and (not subtopic or not subtopickey):
             subtopics_list = []
             topicinfo = ""
-            for st in self.info_dict[topic].keys():
-                if st != topic:
+            for st in self.info_dict[topickey].keys():
+                if st.lower() != topickey.lower():
                     subtopics_list.append(st)
                 else:
-                    topicinfo = self.info_dict[topic][st]
+                    topicinfo = self.info_dict[topickey][st]
             if len(subtopics_list) > 0:
                 allinfo_str = topicinfo+"\n\n**Subtopics**\n"+"```\n"+"\n".join(subtopics_list)+"\n```"+"Use `~info <topic> <subtopic>` to learn more about a subtopic."
             else:
                 allinfo_str = topicinfo
             infoEmbed = discord.Embed(title=topic, description =allinfo_str, color=0xffb6c1)
             await member.send(embed=infoEmbed)
-        elif topic and topic in self.info_dict and subtopic and subtopic in self.info_dict[topic]:
-            infoEmbed = discord.Embed(title = f"`{subtopic}` in `{topic}`", description = self.info_dict[topic][subtopic], color=0xffb6c1)
+            await ctx.send(f'Sent info about `{topickey}` to {member}')
+
+        elif topic and topickey and subtopic and subtopickey:
+            infoEmbed = discord.Embed(title = f"`{subtopic}` in `{topic}`", description = self.info_dict[topickey][subtopickey], color=0xffb6c1)
             await member.send(embed=infoEmbed)
-            await ctx.send(f'Info was sent to {member}')
+            await ctx.send(f'Sent info about `{subtopickey}` in `{topickey}` to {member}')
 
         else:
             await ctx.send('Topic not found.')
