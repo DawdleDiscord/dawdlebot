@@ -8,10 +8,9 @@ load_dotenv()
 #sys.path.append('/src')
 from discord.ext.commands import Bot
 from discord.ext import commands, tasks
-import gn_mess_dict
 import random
 #from dawdle_vars import dawdletoken
-from src.db_modules import birthdays,moderation,qotd,fuzzies,clean,verification,members,db_autoreact,db_roles,db_vent,db_VCtrack,db_welcomegoodbye,db_pins,db_info
+from src.db_modules import birthdays,moderation,qotd,fuzzies,clean,verification,members,db_autoreact,db_roles,db_vent,db_VCtrack,db_welcomegoodbye,db_pins,db_info, db_responses
 from src.db_modules import SmartMember
 
 import json,typing
@@ -51,6 +50,7 @@ bot.add_cog(db_VCtrack(bot))
 bot.add_cog(db_welcomegoodbye(bot))
 bot.add_cog(db_pins(bot))
 bot.add_cog(db_info(bot))
+bot.add_cog(db_responses(bot))
 
 # with open('src/data/db_config.json', 'r') as json_file:
 # 	config = json.load(json_file)
@@ -118,11 +118,6 @@ async def on_message(message):
 		def is_old_intro(mess2):
 			return mess2.author == message.author and mess2.id != message.id and mess2.author.id != 381507393470857229
 		deleted_intro = await introchannel.purge(limit=None,check=is_old_intro)
-
-	#Goodnight messages
-
-	if message.channel and ("nini dawdle" in message.content.lower()):
-		await message.author.send(random.choice(gn_mess_dict.gn_mess['nini_mess']))
 
 #	if message.channel == spamchannel and message.author == dbumpbot:
 #		print(message.embeds[0].description)
