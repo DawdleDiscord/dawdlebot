@@ -21,7 +21,7 @@ Contact amer#1111 with any questions.
 * Mass role kicking based on join time
 * Sending server information
 
-##Commands: All Members
+## Commands: All Members
 Required arguments are denoted by `<argument>`, optional arguments are denoted by `[argument]`.
 
 `~info [topic] [subtopic]` displays information relevant to that (sub)topic. If a topic is not included all topics will be listed.
@@ -35,13 +35,13 @@ Required arguments are denoted by `<argument>`, optional arguments are denoted b
 `~birthday [day] [month]` adds your birthday.
 
 
-##Commands: Staff Only
+## Commands: Staff Only
 
 Required arguments are denoted by `<argument>`, optional arguments are denoted by `[argument]`.
 
 All `member` arguments work by ID, mention, username, or nickname. nick/usernames can be found by partial matches and are not case sensitive.
 
-###Moderation
+### Moderation
 
 `~ban <member/userid> [rule #]` Bans the member/user. If a rule number is included an admonition is posted as
 
@@ -56,13 +56,13 @@ All `member` arguments work by ID, mention, username, or nickname. nick/username
 `~prune <# of messages> [member/userID]` Prunes the given number of messages. Including a member or userID will prune only those messages sent by that user.
 
 
-###Members
+### Members
 
 `~members clean [member]` cleans messages in identifying channels sent by users no longer in the server. If `member` is given it deletes messages only from that member.
 
 `~members check` makes sure that every member has an intro and required roles.
 
-###Roles
+### Roles
 
 `~roles color <role> <newcolor>` changes the color of the role to `newcolor`.
 
@@ -82,7 +82,7 @@ All `member` arguments work by ID, mention, username, or nickname. nick/username
 
 `~roles kick <role> <hours>` This is the former `kick_role`. It will kick anyone with `role` who joined more than `hours` ago. Only works for @unverified  and @. roles.
 
-###Bot Cleaning
+### Bot Cleaning
 
 `~clean botadd <botname> <botprefix>` adds that prefix as a command prefix.
 
@@ -96,7 +96,7 @@ All `member` arguments work by ID, mention, username, or nickname. nick/username
 
 `~clean channellist` lists channels that are cleaned
 
-###QOTD
+### QOTD
 
 The bot will check once per hour if the current hour is 17 UTC time. If so, then it will post the next question in the queue.
 
@@ -112,7 +112,7 @@ the bot will post next question in the queue every day, then delete it from the 
 
 `~qotd post` force the bot to post a qotd. should be used if the normal time passes and no qotds were added
 
-###Autoreacts
+### Autoreacts
 
 `~autoreact add <channel> <emoji 1> <emoji 2> ...` adds the channel and emojis for the bot to autoreact.
 
@@ -120,7 +120,7 @@ the bot will post next question in the queue every day, then delete it from the 
 
 `~autoreact list`shows all added channels and corresponding emojis.
 
-###Info
+### Info
 
 `~sendinfo <member> <topic> [subtopic]` DMs the member the information in the (sub) topic.
 
@@ -132,7 +132,7 @@ the bot will post next question in the queue every day, then delete it from the 
 
 `~editinfo removesubtopic <topic> <subtopic>` Removes the subtopic from the topic.
 
-###Birthdays
+### Birthdays
 
 `~addbirthday <member> <day> <month>` manually inputs the member's birthday.
 
