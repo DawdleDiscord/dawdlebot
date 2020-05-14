@@ -123,6 +123,16 @@ class db_roles(commands.Cog):
 		returnEmbed = discord.Embed(title = f"Removed {role} role from {member}", color = 0xffb6c1)
 		await ctx.send(embed=returnEmbed)
 
+	@roles.command()
+	async def members(self, ctx, *,role : SmartRole):
+		if len(role.members) > 0:
+			member_mentions = (mem.mention for mem in role.members)
+			returnEmbed = discord.Embed(title = f"Members of `{role}` role", description ="\n".join(member_mentions), color = 0xffb6c1)
+		else:
+			returnEmbed = discord.Embed(title = f"No members with `{role}` role.", color = 0xffb6c1)
+		await ctx.send(embed = returnEmbed)
+
+
 	async def cog_command_error(self, ctx, error):
 
 		if isinstance(error, commands.BadArgument):

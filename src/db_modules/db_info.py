@@ -23,7 +23,7 @@ class db_info(commands.Cog):
             if match.lower() in key.lower():
                 return key
     @commands.command()
-    async def info(self, ctx, topic :  typing.Optional[str], subtopic : typing.Optional[str]):
+    async def info(self, ctx, topic :  typing.Optional[str],*, subtopic : typing.Optional[str]):
         topickey = None
         subtopickey = None
         if topic:
@@ -40,18 +40,22 @@ class db_info(commands.Cog):
                 else:
                     topicinfo = self.info_dict[topickey][st]
             if len(subtopics_list) > 0:
+                subtopics_list.sort(key=str.lower)
                 allinfo_str = topicinfo+"\n\n**Subtopics**\n"+"```\n"+"\n".join(subtopics_list)+"\n```"+"Use `~info <topic> <subtopic>` to learn more about a subtopic."
             else:
                 allinfo_str = topicinfo
-            infoEmbed = discord.Embed(title=topic, description =allinfo_str, color=0xffb6c1)
+            infoEmbed = discord.Embed(title=f"`{topickey}`", description =allinfo_str, color=0xffb6c1)
+            if topickey == "Reporting":
+                infoEmbed.set_image(url="https://i.imgur.com/6OD4GWr.png")
 
         elif topic and topickey and subtopic and subtopickey:
-            infoEmbed = discord.Embed(title = f"`{subtopic}` in `{topic}`", description = self.info_dict[topickey][subtopickey], color=0xffb6c1)
+            infoEmbed = discord.Embed(title = f"`{topickey} : {subtopickey}`", description = self.info_dict[topickey][subtopickey], color=0xffb6c1)
 
         else:
 
-            topiclist = self.info_dict.keys()
-            topiclist_str = '```\n'+'\n'.join(topiclist)+'\n```'+'Use `~info <topic>` to see subtopics.'
+            topiclist = list(self.info_dict.keys())
+            topiclist.sort(key=str.lower)
+            topiclist_str = '```\n'+'\n'.join(topiclist)+'\n```'+'Use `~info <topic>` to see information and subtopics.'
             infoEmbed = discord.Embed(title = "Topics", description = topiclist_str, color=0xffb6c1)
 
         await ctx.send(embed=infoEmbed)
@@ -112,6 +116,8 @@ class db_info(commands.Cog):
                     self.info_dict[topic][subtopic] = response.content
                     await ctx.send(f'`{subtopic}` has been added.')
                     self.save_json_dict(self.info_dict)
+        else:
+            await ctx.send("This is not a topic in `info`.")
     @editinfo.command()
     async def removesubtopic(self, ctx, topic : str, subtopic : str):
         if topic in self.info_dict:
@@ -137,7 +143,7 @@ class db_info(commands.Cog):
 
     @commands.command()
     @is_mod()
-    async def sendinfo(self, ctx, member : SmartMember, topic : str, subtopic : typing.Optional[str]):
+    async def sendinfo(self, ctx, member : SmartMember, topic : str,*, subtopic : typing.Optional[str]):
         topickey = None
         subtopickey = None
         if topic:
@@ -158,6 +164,8 @@ class db_info(commands.Cog):
             else:
                 allinfo_str = topicinfo
             infoEmbed = discord.Embed(title=topic, description =allinfo_str, color=0xffb6c1)
+            if topickey == "Reporting":
+                infoEmbed.set_image(url="https://i.imgur.com/6OD4GWr.png")
             await member.send(embed=infoEmbed)
             await ctx.send(f'Sent info about `{topickey}` to {member}')
 

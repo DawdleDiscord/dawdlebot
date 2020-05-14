@@ -102,9 +102,14 @@ class qotd(commands.Cog):
 			qotdbanner = discord.File("src/images/qotdbanner.png")
 			await qotdchannel.send(file=qotdbanner)
 			qotdbanner = discord.File("src/images/qotdbanner.png")
-			await qotdchannel.send(content=f'**Question of the Day**\n \n{qotdlist[0]}',file=qotdbanner)
+			allpins = await qotdchannel.pins()
+			for mess in allpins:
+				if mess.author.bot:
+					await mess.unpin()
+			qotdmess = await qotdchannel.send(content=f'**Question of the Day**\n \n{qotdlist[0]}',file=qotdbanner)
 			del qotdlist[0]
 			await ctx.send('qotd posted!')
+			await qotdmess.pin()
 
 			with open('src/data/qotd.json', 'w') as json_file_w2:
 					json.dump(qotdlist, json_file_w2)
@@ -128,7 +133,12 @@ class qotd(commands.Cog):
 				qotdbanner = discord.File("src/images/qotdbanner.png")
 				await qotdchannel.send(file=qotdbanner)
 				qotdbanner = discord.File("src/images/qotdbanner.png")
-				await qotdchannel.send(content=f'**Question of the Day** \n \n{qotdlist[0]}',file=qotdbanner)
+				allpins = await qotdchannel.pins()
+				for mess in allpins:
+					if mess.author.bot:
+						await mess.unpin()
+				qotdmess = await qotdchannel.send(content=f'**Question of the Day** \n \n{qotdlist[0]}',file=qotdbanner)
+				await qotdmess.pin()
 				del qotdlist[0]
 
 				with open('src/data/qotd.json', 'w') as json_file_w2:
