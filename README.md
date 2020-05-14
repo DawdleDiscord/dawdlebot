@@ -32,8 +32,9 @@ Required arguments are denoted by `<argument>`, optional arguments are denoted b
 
 `~done` will check if you have your roles and intro, and if so it will remove your `.` role 
 
-`~birthday [day] [month]` adds your birthday.
+`~birthday <day> <month>` adds your birthday.
 
+`~birthdaymonth <month>` displays all birthdays for that month.
 
 ## Commands: Staff Only
 
