@@ -22,7 +22,7 @@ class db_autoreact(commands.Cog):
 	async def add(self, ctx, channel : discord.TextChannel, *emoji : str):
 
 		if emoji:
-			self.reacts_dict[channel.id] = emoji
+			self.reacts_dict[str(channel.id)] = emoji
 
 
 			with open('src/data/autoreacts.json', 'w') as json_file:
@@ -80,9 +80,3 @@ class db_autoreact(commands.Cog):
 			if str(message.channel.id) in self.reacts_dict.keys():
 				for emoji in self.reacts_dict[str(message.channel.id)]:
 					await message.add_reaction(emoji)
-
-
-
-
-
-

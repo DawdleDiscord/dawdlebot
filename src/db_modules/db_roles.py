@@ -110,14 +110,14 @@ class db_roles(commands.Cog):
 		await ctx.send(embed=infoEmbed)
 
 	@roles.command()
-	async def give(self, ctx, role : SmartRole, *, member : SmartMember):
+	async def give(self, ctx, member : SmartMember, *, role : SmartRole):
 
 		await member.add_roles(role)
 		returnEmbed = discord.Embed(title =f"Gave {role} role to {member}", color = 0xffb6c1)
 		await ctx.send(embed=returnEmbed)
 
 	@roles.command()
-	async def remove(self, ctx, role : SmartRole, *, member : SmartMember):
+	async def remove(self, ctx, member : SmartMember, *, role : SmartRole):
 
 		await member.remove_roles(role)
 		returnEmbed = discord.Embed(title = f"Removed {role} role from {member}", color = 0xffb6c1)

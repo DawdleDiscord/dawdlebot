@@ -84,7 +84,7 @@ class verification(commands.Cog):
 							dotrole = dawdle.get_role(587397534469718022)
 							await user.add_roles(verifiedrole, dotrole)
 							await user.remove_roles(unverifiedrole)
-							await user.send("Thank you for verifying! You’ve successfully completed this process, you are now able to see the majority of the server and can delete your verification images. Please proceed to get some <#694994576791961630> and to post an <#514555898648330260>! No formats are necessary for introductions, just a little snippet will do. When you are done with both, type `~done` (without the quotes) in <#514560994337620008>.")
+							await user.send("Thank you for verifying! You’ve successfully completed this process, you are now able to see the majority of the server. Please proceed to get some <#694994576791961630> and to post an <#514555898648330260>! No formats are necessary for introductions, just a little snippet will do. When you are done with both, type `~done` (without the quotes) in <#514560994337620008>.")
 
 						if str(react.emoji) == '<:pinkx:609771973102534687>':
 							await user.send("Sorry, but the pictures you provided do not follow our outlines as described in <#479407137060028449>. Please review and try again!")

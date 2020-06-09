@@ -88,10 +88,13 @@ class clean(commands.Cog):
 		channellist_str = []
 		for ch_id in self.channellist:
 			channel = ctx.guild.get_channel(ch_id)
-			channel_str = f"❥ {channel.mention}"
-			channellist_str.append(channel_str)
+			if channel is None:
+				self.channellist.remove(ch_id)
+				with open('src/data/cleanchannellist.json', 'w') as json_file:
+					json.dump(self.channellist, json_file)
+			else:
+				channel_str = f"❥ {channel.mention}"
+				channellist_str.append(channel_str)
 		channellist_all = "**Channels**\n"+'\n'.join(channellist_str)
 		channelEmbed = discord.Embed(title = '', description = channellist_all, color=0xffb6c1)
 		await ctx.send(embed=channelEmbed)
-
-    

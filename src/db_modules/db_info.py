@@ -41,15 +41,15 @@ class db_info(commands.Cog):
                     topicinfo = self.info_dict[topickey][st]
             if len(subtopics_list) > 0:
                 subtopics_list.sort(key=str.lower)
-                allinfo_str = topicinfo+"\n\n**Subtopics**\n"+"```\n"+"\n".join(subtopics_list)+"\n```"+"Use `~info <topic> <subtopic>` to learn more about a subtopic."
+                allinfo_str = topicinfo+"\n\n**Subtopics**\n"+"```\n"+"\n".join(subtopics_list)+"\n```"+f"Use `~info {topic} <subtopic>` to learn more about a subtopic."
             else:
                 allinfo_str = topicinfo
             infoEmbed = discord.Embed(title=f"`{topickey}`", description =allinfo_str, color=0xffb6c1)
-            if topickey == "Reporting":
-                infoEmbed.set_image(url="https://i.imgur.com/6OD4GWr.png")
-
+            usemessage = f"Info was used for topic `{topickey}`"
         elif topic and topickey and subtopic and subtopickey:
             infoEmbed = discord.Embed(title = f"`{topickey} : {subtopickey}`", description = self.info_dict[topickey][subtopickey], color=0xffb6c1)
+
+            usemessage = f"Info was used for {subtopickey} in {topic}"
 
         else:
 
@@ -57,8 +57,12 @@ class db_info(commands.Cog):
             topiclist.sort(key=str.lower)
             topiclist_str = '```\n'+'\n'.join(topiclist)+'\n```'+'Use `~info <topic>` to see information and subtopics.'
             infoEmbed = discord.Embed(title = "Topics", description = topiclist_str, color=0xffb6c1)
+            usemessage = "Info was used."
 
         await ctx.send(embed=infoEmbed)
+        testserver = self.bot.get_guild(622553382279708672)
+        infotrackchannel = testserver.get_channel(713113119861375007)
+        await infotrackchannel.send(usemessage)
 
     @commands.group()
     async def editinfo(self, ctx):
