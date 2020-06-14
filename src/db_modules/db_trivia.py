@@ -149,12 +149,13 @@ class db_trivia(commands.Cog):
             embed.add_field(name = "Wrong answer", value ="[%r]: %r"%(nn, j))
         embed.add_field(name = "Controls", value = "React 1,2,3, or 4 to edit that element, tick to finish, or x to delete.")
         UI= await ctx.send(embed=embed)
-        await UI.add_reaction('✔')#('<:pinkcheck:609771973341610033>')
-        await UI.add_reaction('❌')#('<:pinkx:609771973102534687>')
-        await UI.add_reaction('1️⃣')
-        await UI.add_reaction('2️⃣')
-        await UI.add_reaction('3️⃣')
-        await UI.add_reaction('4️⃣')
+        await UI.add_reaction('<:pinkcheck:609771973341610033>')#('<:pinkcheck:609771973341610033>')
+        await UI.add_reaction('<:pinkx:609771973102534687>')#('<:pinkx:609771973102534687>')
+        reactionlist = ["<:pinknum:603710351434973200>", "<:pinknum:603710368371703808>", "<:pinknum:603710385752899614>", "<:pinknum:603710402664333333>"]
+        await UI.add_reaction('<:pinknum:603710351434973200>')
+        await UI.add_reaction('<:pinknum:603710368371703808>')
+        await UI.add_reaction('<:pinknum:603710385752899614>')
+        await UI.add_reaction('<:pinknum:603710402664333333>')
         n=1
         while n != 2 : #I'm worried about this, might be worth checking it with Amer [Is there a better way to loop using async or something]
             try:
@@ -184,34 +185,34 @@ class db_trivia(commands.Cog):
                 for k in reaction.message.reactions:
                     if k.count == 2:
                         response = 'temp'
-                        if (str(k.emoji)) == '✔':
+                        if (str(k.emoji)) == '<:pinkcheck:609771973341610033>': #check
                             self.save_json_dict(self.trivlist)
                             await ctx.send ("Saved!")
                             await message.delete(delay = 1)
                             n=2 #Must be a better way of leaving a loop but meh
                             break
-                        elif (str(k.emoji)) == '❌':
+                        elif (str(k.emoji)) == '<:pinkx:609771973102534687>': #x
                             del self.trivlist[Active]
                             self.save_json_dict(self.trivlist)
                             await ctx.send("Deleted!")
                             await message.delete(delay = 1)
                             n=2
-                        elif (str(k.emoji)) == '1️⃣':
-                            response = await EditAnswer(self, 0, reaction.message, embed)
+                        elif (str(k.emoji)) == '<:pinknum:603710351434973200>':
+                            response = await EditAnswer(self, 0, reaction.message, embed) #1
                             self.trivlist[Active]["correct"]= response
                             await reaction.remove(user)
                             break
-                        elif (str(k.emoji)) == '2️⃣':
+                        elif (str(k.emoji)) == '<:pinknum:603710368371703808>': #2
                             response = await EditAnswer(self, 1, reaction.message, embed)
                             self.trivlist[Active]["wrong"][0]= response
                             await reaction.remove(user)
                             break
-                        elif (str(k.emoji)) == '3️⃣':
+                        elif (str(k.emoji)) == '<:pinknum:603710385752899614>': #3
                             response = await EditAnswer(self, 2, reaction.message, embed)
                             self.trivlist[Active]["wrong"][1]= response
                             await reaction.remove(user)
                             break
-                        elif (str(k.emoji)) == '4️⃣':
+                        elif (str(k.emoji)) == '<:pinknum:603710402664333333>': #4
                             response = await EditAnswer(self, 3, reaction.message, embed)
                             self.trivlist[Active]["wrong"][2]= response
                             await reaction.remove(user)
