@@ -1,3 +1,4 @@
+#modules
 from .db_birthdays import birthdays
 from .db_moderation import moderation
 from .db_qotd import qotd
@@ -13,6 +14,10 @@ from .db_welcomegoodbye import db_welcomegoodbye
 from .db_pins import db_pins
 from .db_info import db_info
 from .db_responses import db_responses
+from .db_trivia import db_trivia
+from .db_miscellaneous import db_miscellaneous
+
+#converters
 from .db_converters import SmartMember
 from .db_converters import SmartRole
 
