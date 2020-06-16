@@ -36,6 +36,8 @@ Required arguments are denoted by `<argument>`, optional arguments are denoted b
 
 `~birthdaymonth <month>` displays all birthdays for that month.
 
+`~trivia` lets you play a game of trivia!
+
 ## Commands: Staff Only
 
 Required arguments are denoted by `<argument>`, optional arguments are denoted by `[argument]`.
@@ -129,7 +131,7 @@ the bot will post next question in the queue every day, then delete it from the 
 
 `~editinfo removetopic <topic>` Removes the topic.
 
-`~editinfo addsubtopic <topic> <subtopic>` Adds the subtopic under the topic, and also will ask you to input the information. This can also be used to update information, as it will replace the old subtopic and give a warning before doing so. **to input general topic information, name the subtopic the same as the topic**
+`~editinfo addsubtopic <topic> <subtopic>` Adds the subtopic under the topic, and also will ask you to input the information. This can also be used to update information, as it will replace the old subtopic and give a warning before doing so. **To input general topic information, name the subtopic the same as the topic.**
 
 `~editinfo removesubtopic <topic> <subtopic>` Removes the subtopic from the topic.
 
@@ -138,3 +140,11 @@ the bot will post next question in the queue every day, then delete it from the 
 `~addbirthday <member> <day> <month>` manually inputs the member's birthday.
 
 `~birthdayclean` removes any birthdays of members no longer in the server if they are not deleted automatically.
+
+###Trivia
+
+`~trivia add <question>` Starts a menu for adding the correct and incorrect answers to the question, then saves it.
+
+`~trivia list` Lists all current trivia questions. Use the arrows to go between pages.
+
+`~trivia edit <question>` Starts an interface to edit or delete the question. Question can either be specified by the question text or the index next to it in `~trivia list`. Be careful of ambiguities between those two possibilities.
