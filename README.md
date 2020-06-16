@@ -38,6 +38,8 @@ Required arguments are denoted by `<argument>`, optional arguments are denoted b
 
 `~trivia` lets you play a game of trivia!
 
+`~trivia leaderboard` shows the current leaderboard of trivia streaks.
+
 ## Commands: Staff Only
 
 Required arguments are denoted by `<argument>`, optional arguments are denoted by `[argument]`.

@@ -6,7 +6,7 @@ import random
 from discord.ext import commands, tasks
 from .db_checks import is_mod
 # -*- coding: utf-8 -*-
-
+#credit this to tinnyf#4688
 
 class db_trivia(commands.Cog):
     def __init__(self, bot):
@@ -18,6 +18,13 @@ class db_trivia(commands.Cog):
             except json.decoder.JSONDecodeError:
                 print ("Currently no trivia!")
                 self.trivlist = {}
+
+        with open("src/data/triviastreak.json", "r") as json_file:
+            try:
+                self.streak_dict = json.load(json_file)
+            except json.decoder.JSONDecodeError:
+                print("No streak dictionary!")
+                self.streak_dict = {}
 
     def save_json_dict(self, dict):
         with open("src/data/trivia.json", "w") as json_file:
@@ -61,18 +68,54 @@ class db_trivia(commands.Cog):
                 if answers[index] == self.trivlist[question]["correct"]:
                     responseEmbed = discord.Embed(title = f"<:pinkcheck:609771973341610033> {ctx.author.name} is correct!", color =  0xffb6c1)
                     responseEmbed.add_field(name = "Question", value = question)
-                    responseEmbed.add_field(name = "Your answer", value = answers[index])
+                    try:
+                        currentStreak = self.streak_dict[str(ctx.author.id)] + 1
+                    except KeyError:
+                        currentStreak = 1
+                    responseEmbed.add_field(name = "Streak", value = str(currentStreak))
                 #    triviaEmbed.title = f"<:pinkcheck:609771973341610033> {ctx.author.mention} is correct!"
                     await triviaMess.clear_reactions()
                     await triviaMess.edit(embed=responseEmbed)
 
+                    try:
+                        currentStreak = self.streak_dict[str(ctx.author.id)] + 1
+                    except KeyError:
+                        currentStreak = 1
+
+                    self.streak_dict[str(ctx.author.id)] = currentStreak
+
+
                 else:
                     responseEmbed = discord.Embed(title = f"<:pinkx:609771973102534687> {ctx.author.name} is incorrect.", color =  0xffb6c1)
                     responseEmbed.add_field(name = "Question", value = question)
-                    responseEmbed.add_field(name = "Your answer", value = answers[index])
                     #triviaEmbed.title = f"<:pinkx:609771973102534687> {ctx.author.mention} is incorrect"
                     await triviaMess.clear_reactions()
                     await triviaMess.edit(embed=responseEmbed)
+                    self.streak_dict[str(ctx.author.id)] = 0
+
+                with open("src/data/triviastreak.json", "w") as json_file:
+                    json.dump(self.streak_dict, json_file)
+
+    @trivia.command(aliases = ['lb'])
+    async def leaderboard(self, ctx):
+        sorted_lb = sorted(self.streak_dict.items(), key=lambda x: x[1], reverse=True)
+
+        lb_str_list = []
+        rank = 1
+        for strk in sorted_lb:
+            member = ctx.guild.get_member(int(strk[0]))
+            if member and strk[1] > 0:
+                lb_str = f"[{rank}] {member}".ljust(24)
+                lb_str = lb_str+str(strk[1])
+                lb_str_list.append(lb_str)
+                rank += 1
+            else:
+                del self.streak_dict[strk[0]]
+                with open("src/data/triviastreak.json", "w") as json_file:
+                    json.dump(self.streak_dict, json_file)
+
+        lbEmbed = discord.Embed(title = "Trivia Streak Leaderboard", description = "```"+"\n".join(lb_str_list)+"```", color = 0xffb6c1)
+        await ctx.send(embed = lbEmbed)
 
 
 
@@ -140,10 +183,10 @@ class db_trivia(commands.Cog):
 
         embedIndex = 0
         listmess = await ctx.send(embed = embedList[embedIndex])
-        await listmess.add_reaction("⬅️")
-        await listmess.add_reaction("➡️")
+        await listmess.add_reaction("<a:pinkarrowleft:722535337531932742>")
+        await listmess.add_reaction("<a:pinkarrowright:630533102757871658>")
         def resp_check(reaction, user):
-            return (str(reaction.emoji) == "➡️" or str(reaction.emoji) == "⬅️") and not user.bot
+            return (str(reaction.emoji) == "<a:pinkarrowright:630533102757871658>" or str(reaction.emoji) == "<a:pinkarrowleft:722535337531932742>") and not user.bot
         keepGoing = True
         while keepGoing:
             try:
@@ -153,14 +196,14 @@ class db_trivia(commands.Cog):
                 await listmess.clear_reactions()
             else:
                 await reaction.remove(user)
-                if str(reaction.emoji) == "➡️":
+                if str(reaction.emoji) == "<a:pinkarrowright:630533102757871658>":
                     try:
                         embedIndex = embedIndex + 1
                         await listmess.edit(embed = embedList[embedIndex % len(embedList)])
                     except IndexError:
                         pass
 
-                elif str(reaction.emoji) == "⬅️":
+                elif str(reaction.emoji) == "<a:pinkarrowleft:722535337531932742>":
                     try:
                         embedIndex = embedIndex - 1
                         await listmess.edit(embed = embedList[embedIndex % len(embedList)])
@@ -220,6 +263,7 @@ class db_trivia(commands.Cog):
                         response = await self.bot.wait_for('message', check = check, timeout = 120.0)
                     except asyncio.TimeoutError:
                         await ctx.send('Response timed out')
+
                     else:
                         temp = int(index + 1)
                         embed.set_field_at(index, name = 'Updated Answer', value = '[%r]: %r' %(temp,response.content))
