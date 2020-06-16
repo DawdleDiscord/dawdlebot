@@ -6,11 +6,10 @@ import random
 from discord.ext import commands, tasks
 from .db_checks import is_mod
 # -*- coding: utf-8 -*-
-#Target structure: trivlist{ question: { correct: <correct>, other: [<others>] }
 
 
 class db_trivia(commands.Cog):
-    def __init__(self, bot): #I'm not exactly sure what this does yet so I'm just leaving it here
+    def __init__(self, bot):
         self.bot = bot
 
         with open("src/data/trivia.json", "r") as json_file:
@@ -26,6 +25,7 @@ class db_trivia(commands.Cog):
 
     @commands.group()
     @is_mod()
+    #@commands.cooldown(1, 30.0, member)
     async def trivia(self, ctx):
         if ctx.subcommand_passed is not None and ctx.invoked_subcommand is None:
             await ctx.send("No such command found!")
@@ -52,7 +52,7 @@ class db_trivia(commands.Cog):
                 return str(reaction.emoji) in reactionlist and user == ctx.author
 
             try:
-                reaction, user = await self.bot.wait_for('reaction_add', check = trivia_check, timeout = 60)
+                reaction, user = await self.bot.wait_for('reaction_add', check = trivia_check, timeout = 15)
             except asyncio.TimeoutError:
                 triviaEmbed.title = f"{ctx.author.name}'s game timed out."
                 await triviaMess.edit(embed=triviaEmbed)
@@ -116,25 +116,69 @@ class db_trivia(commands.Cog):
                 self.trivlist[question] = Answers
                 self.save_json_dict(self.trivlist)
                 confirmation = discord.Embed(title = "Question added!", color=0xffb6c1)
-                confirmation.add_field(name = "Question", value = question, inline = False)
-                confirmation.add_field(name = "Correct answer", value = correct, inline = False)
-                confirmation.add_field(name = "Wrong answer", value = "\n".join(wrong), inline = False)
+                confirmation.add_field(name = "Question", value = question)
+                confirmation.add_field(name = "Correct answer", value = correct)
+                confirmation.add_field(name = "Wrong answer", value = "\n".join(wrong))
+                index = len(self.trivlist)
+                confirmation.add_field(name= "Index", value = index)
                 await ctx.send(embed = confirmation)
                 await UI.delete(delay=1)
 
     @trivia.command() #Simply lists all trivia. Put an @ismod here
     async def list(self, ctx):
-        embed = discord.Embed(title="List of Questions", color=0xffb6c1)
-        n = 1
-        for i in self.trivlist:
-            embed.add_field(name="[%r]"%(n), value="%r"%(i))
-            n = n + 1
-        embed.add_field(name="Controls", value = "Type ~trivia edit <Index> to edit a question!", inline = True)
-        await ctx.send(embed=embed)
 
+        embedList = []
+        nembeds = int(len(self.trivlist)/25) + 1
+        for n in range(1,nembeds+1):
+            currentEmbed = discord.Embed(title = f"List of Questions {n}", color=0xffb6c1)
+            i = 1
+            for quest in self.trivlist:
+                if 25*n - i >= 0 and 25*(n-1) - i < 0:
+                    currentEmbed.add_field(name = str(i), value = f"{quest}")
+                i += 1
+            embedList.append(currentEmbed)
+
+        embedIndex = 0
+        listmess = await ctx.send(embed = embedList[embedIndex])
+        await listmess.add_reaction("⬅️")
+        await listmess.add_reaction("➡️")
+        def resp_check(reaction, user):
+            return (str(reaction.emoji) == "➡️" or str(reaction.emoji) == "⬅️") and not user.bot
+        keepGoing = True
+        while keepGoing:
+            try:
+                reaction, user = await self.bot.wait_for('reaction_add', check = resp_check, timeout = 120)
+            except asyncio.TimeoutError:
+                keepGoing = False
+                await listmess.clear_reactions()
+            else:
+                await reaction.remove(user)
+                if str(reaction.emoji) == "➡️":
+                    try:
+                        embedIndex = embedIndex + 1
+                        await listmess.edit(embed = embedList[embedIndex % len(embedList)])
+                    except IndexError:
+                        pass
+
+                elif str(reaction.emoji) == "⬅️":
+                    try:
+                        embedIndex = embedIndex - 1
+                        await listmess.edit(embed = embedList[embedIndex % len(embedList)])
+                    except IndexError:
+                        pass
 
     @trivia.command() #Accesses the editing UI
-    async def edit(self, ctx, index : int):
+    async def edit(self, ctx,*, question : typing.Union[int, str]):
+        if isinstance(question,int):
+            index = question
+        else:
+            m = 1
+            for quest in self.trivlist:
+                if question.lower() in quest.lower():
+                    index = m
+                    break
+                m += 1
+
         n = 0
         Active = {}
         for i in self.trivlist:
@@ -151,6 +195,7 @@ class db_trivia(commands.Cog):
         UI= await ctx.send(embed=embed)
         await UI.add_reaction('<:pinkcheck:609771973341610033>')#('<:pinkcheck:609771973341610033>')
         await UI.add_reaction('<:pinkx:609771973102534687>')#('<:pinkx:609771973102534687>')
+#        await UI.add_reaction('<:AAAAHHH:586561885629841408>')
         reactionlist = ["<:pinknum:603710351434973200>", "<:pinknum:603710368371703808>", "<:pinknum:603710385752899614>", "<:pinknum:603710402664333333>"]
         await UI.add_reaction('<:pinknum:603710351434973200>')
         await UI.add_reaction('<:pinknum:603710368371703808>')
@@ -217,6 +262,8 @@ class db_trivia(commands.Cog):
                             self.trivlist[Active]["wrong"][2]= response
                             await reaction.remove(user)
                             break
+#                        elif (str(k.emoji)) == '<:AAAAHHH:586561885629841408>':
+#                            embed.title = reaction.message
 
     @edit.error
     async def trivia_edit_error(self, ctx, error):
