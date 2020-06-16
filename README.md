@@ -141,7 +141,7 @@ the bot will post next question in the queue every day, then delete it from the 
 
 `~birthdayclean` removes any birthdays of members no longer in the server if they are not deleted automatically.
 
-###Trivia
+### Trivia
 
 `~trivia add <question>` Starts a menu for adding the correct and incorrect answers to the question, then saves it.
 
