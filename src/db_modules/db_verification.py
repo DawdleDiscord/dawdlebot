@@ -57,9 +57,9 @@ class verification(commands.Cog):
 						sentMess = await verifchannel.send(f'{staffrole.mention}, verify {message.author.mention}?')
 						await sentMess.add_reaction('<:pinkcheck:609771973341610033>')
 						await sentMess.add_reaction('<:pinkx:609771973102534687>')
-						await sentMess.add_reaction('<a:twinklethemoreyouknow:630533105903730689>')
+						await sentMess.add_reaction('<a:twinklethemoreyouknow:722927504817389568>')
 						await sentMess.add_reaction('<a:star2:586767353740656656>')
-						await sentMess.add_reaction('<a:pink_flowers:598695827891945472>')
+						await sentMess.add_reaction('<a:versacerose:722927509305556992>')
 						await message.author.send('Your message has been successfully submitted. Please wait patiently for a staff member to review your pictures.')
 
 	@commands.Cog.listener()
@@ -89,13 +89,13 @@ class verification(commands.Cog):
 						if str(react.emoji) == '<:pinkx:609771973102534687>':
 							await user.send("Sorry, but the pictures you provided do not follow our outlines as described in <#479407137060028449>. Please review and try again!")
 
-						if str(react.emoji) == '<a:twinklethemoreyouknow:630533105903730689>':
+						if str(react.emoji) == '<a:twinklethemoreyouknow:722927504817389568>':
 							await user.send("You’re missing today’s date on the selfie picture!")
 
 						if str(react.emoji) == '<a:star2:586767353740656656>':
 							await user.send("You're missing the server name on the selfie picture!")
 
-						if str(react.emoji) == '<a:pink_flowers:598695827891945472>':
+						if str(react.emoji) == '<a:versacerose:722927509305556992>':
 							await user.send("You're missing your discord name on the selfie picture!")
 
 	@commands.command()

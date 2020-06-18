@@ -4,7 +4,7 @@ import typing
 import asyncio
 import random
 from discord.ext import commands, tasks
-from .db_checks import is_mod
+from .db_checks import is_mod,in_dawdle
 # -*- coding: utf-8 -*-
 #credit this to tinnyf#4688
 
@@ -31,8 +31,8 @@ class db_trivia(commands.Cog):
             json.dump(dict, json_file)
 
     @commands.group()
-    @is_mod()
-    #@commands.cooldown(1, 30.0, member)
+    @in_dawdle()
+    @commands.cooldown(1, 15.0, commands.BucketType.member)
     async def trivia(self, ctx):
         if ctx.subcommand_passed is not None and ctx.invoked_subcommand is None:
             await ctx.send("No such command found!")
@@ -61,8 +61,11 @@ class db_trivia(commands.Cog):
             try:
                 reaction, user = await self.bot.wait_for('reaction_add', check = trivia_check, timeout = 15)
             except asyncio.TimeoutError:
-                triviaEmbed.title = f"{ctx.author.name}'s game timed out."
-                await triviaMess.edit(embed=triviaEmbed)
+                responseEmbed = discord.Embed(title = f"<:pinkx:609771973102534687> {ctx.author.name} timed out.", color =  0xffb6c1)
+                responseEmbed.add_field(name = "Question", value = question)
+                await triviaMess.clear_reactions()
+                await triviaMess.edit(embed=responseEmbed)
+                currentStreak = 0
             else:
                 index = reactionlist.index(str(reaction.emoji))
                 if answers[index] == self.trivlist[question]["correct"]:
@@ -77,24 +80,17 @@ class db_trivia(commands.Cog):
                     await triviaMess.clear_reactions()
                     await triviaMess.edit(embed=responseEmbed)
 
-                    try:
-                        currentStreak = self.streak_dict[str(ctx.author.id)] + 1
-                    except KeyError:
-                        currentStreak = 1
-
-                    self.streak_dict[str(ctx.author.id)] = currentStreak
-
-
                 else:
                     responseEmbed = discord.Embed(title = f"<:pinkx:609771973102534687> {ctx.author.name} is incorrect.", color =  0xffb6c1)
                     responseEmbed.add_field(name = "Question", value = question)
                     #triviaEmbed.title = f"<:pinkx:609771973102534687> {ctx.author.mention} is incorrect"
                     await triviaMess.clear_reactions()
                     await triviaMess.edit(embed=responseEmbed)
-                    self.streak_dict[str(ctx.author.id)] = 0
+                    currentStreak = 0
 
-                with open("src/data/triviastreak.json", "w") as json_file:
-                    json.dump(self.streak_dict, json_file)
+            self.streak_dict[str(ctx.author.id)] = currentStreak
+            with open("src/data/triviastreak.json", "w") as json_file:
+                json.dump(self.streak_dict, json_file)
 
     @trivia.command(aliases = ['lb'])
     async def leaderboard(self, ctx):
@@ -120,6 +116,7 @@ class db_trivia(commands.Cog):
 
 
     @trivia.command()
+    @is_mod()
     async def add(self, ctx, *,question: str):
         embed = discord.Embed(title = question, color=0xffb6c1)
         embed.add_field(name = 'Prompt', value = 'Please input the correct answer to the question or type cancel to leave this menu')
@@ -168,6 +165,7 @@ class db_trivia(commands.Cog):
                 await UI.delete(delay=1)
 
     @trivia.command() #Simply lists all trivia. Put an @ismod here
+    @is_mod()
     async def list(self, ctx):
 
         embedList = []
@@ -184,9 +182,9 @@ class db_trivia(commands.Cog):
         embedIndex = 0
         listmess = await ctx.send(embed = embedList[embedIndex])
         await listmess.add_reaction("<a:pinkarrowleft:722535337531932742>")
-        await listmess.add_reaction("<a:pinkarrowright:630533102757871658>")
+        await listmess.add_reaction("<a:pinkarrowright:722927504373055548>")
         def resp_check(reaction, user):
-            return (str(reaction.emoji) == "<a:pinkarrowright:630533102757871658>" or str(reaction.emoji) == "<a:pinkarrowleft:722535337531932742>") and not user.bot
+            return (str(reaction.emoji) == "<a:pinkarrowright:722927504373055548>" or str(reaction.emoji) == "<a:pinkarrowleft:722535337531932742>") and not user.bot
         keepGoing = True
         while keepGoing:
             try:
@@ -196,7 +194,7 @@ class db_trivia(commands.Cog):
                 await listmess.clear_reactions()
             else:
                 await reaction.remove(user)
-                if str(reaction.emoji) == "<a:pinkarrowright:630533102757871658>":
+                if str(reaction.emoji) == "<a:pinkarrowright:722927504373055548>":
                     try:
                         embedIndex = embedIndex + 1
                         await listmess.edit(embed = embedList[embedIndex % len(embedList)])
@@ -211,6 +209,7 @@ class db_trivia(commands.Cog):
                         pass
 
     @trivia.command() #Accesses the editing UI
+    @is_mod()
     async def edit(self, ctx,*, question : typing.Union[int, str]):
         if isinstance(question,int):
             index = question
@@ -246,8 +245,10 @@ class db_trivia(commands.Cog):
         await UI.add_reaction('<:pinknum:603710402664333333>')
         n=1
         while n != 2 : #I'm worried about this, might be worth checking it with Amer [Is there a better way to loop using async or something]
+            def react_check(reaction, user):
+                return user == ctx.author and reaction.message.channel == ctx.channel
             try:
-                reaction, user = await self.bot.wait_for('reaction_add',timeout = 60)
+                reaction, user = await self.bot.wait_for('reaction_add', check = react_check, timeout = 30)
             except asyncio.TimeoutError:
                 await ctx.send('Timed out!')
                 break
@@ -314,6 +315,11 @@ class db_trivia(commands.Cog):
         if isinstance(error, commands.errors.MissingRequiredArgument):
             await ctx.send("Question index needed! Use `~trivia list` to see the index for the queston you'd like to edit.")
 
-
-
-    #def Trivia(): #Handles the actual trivia channel
+    @trivia.error
+    async def trivia_error(self, ctx, error):
+        if isinstance(error, commands.CommandOnCooldown):
+            await ctx.send(f"You are on trivia cooldown. You can retry after {round(error.retry_after)} seconds.")
+        elif isinstance(error, commands.CheckFailure):
+            await ctx.send("Check failed: Either you're trying this outside the server or you're using a mod-only command.")
+        else:
+            await ctx.send(f"Error: {str(error)}")

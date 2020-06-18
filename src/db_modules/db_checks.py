@@ -13,9 +13,9 @@ def is_mod():
 		return is_mod
 	return commands.check(is_mod_predicate)
 
-def is_member(guilds):
+def is_member():
 	async def is_member_predicate(ctx):
-		for guild in guilds:
+		for guild in ctx.bot.guilds:
 			if guild.name == 'dawdle':
 				dawdle = guild
 				break
@@ -24,3 +24,9 @@ def is_member(guilds):
 		else:
 			return False
 	return commands.check(is_member_predicate)
+
+def in_dawdle():
+	async def in_dawdle_predicate(ctx):
+		return ctx.guild and ctx.guild.id == 475584392740339712
+
+	return commands.check(in_dawdle_predicate)

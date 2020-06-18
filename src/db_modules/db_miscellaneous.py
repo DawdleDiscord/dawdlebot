@@ -3,7 +3,7 @@ from discord.ext import commands
 from .db_checks import is_mod
 import datetime
 import asyncio
-
+import typing
 
 class db_miscellaneous(commands.Cog):
 
@@ -59,24 +59,34 @@ class db_miscellaneous(commands.Cog):
                     await message.author.send(f"Your message was deleted because it used the 😂 emoji!\n\n Your message:\n{message.content}")
                 except:
                     pass
+            if message.author.id == 292953664492929025 and not message.embeds:
+                staffrole = dawdle.get_role(519616340940554270)
+                if staffrole.mention in message.content:
+                    await message.channel.send(staffrole.mention)
+
 
     @commands.command()
+    @is_mod()
     async def purge_intros(self, ctx, day : int, month : int, year : int):
-        date = datetime.datetime(year, month, day, 0, 0, 0)
-        await ctx.send(f"Are you sure you want to delete all intros before (day/month/year) {day}/{month}/{year}")
-        def purge_check(mess):
-            return mess.author == ctx.author and mess.channel == ctx.channel and (mess.content.lower() == "yes" or mess.content.lower() == "no")
-        try:
-            response = await self.bot.wait_for("message", check = purge_check, timeout = 30.0)
-        except asyncio.TimeoutError:
-            await ctx.send("Reponse timed out.")
-        else:
-            if response.content.lower() == "yes":
-                introchannel = ctx.guild.get_channel(514555898648330260)
-                deleted_intros = await introchannel.purge(limit = None, before = date)
-                await ctx.send(f"Deleted {len(deleted_intros)} intros.")
+        if ctx.author.id == 381507393470857229:
+            date = datetime.datetime(year, month, day, 0, 0, 0)
+            introchannel = ctx.guild.get_channel(514555898648330260)
+            await ctx.send(f"Are you sure you want to delete all {introchannel.mention}s before (day/month/year) {date.day}/{date.month}/{date.year}")
+            def purge_check(mess):
+                return mess.author == ctx.author and mess.channel == ctx.channel and (mess.content.lower() == "yes" or mess.content.lower() == "no")
+            try:
+                response = await self.bot.wait_for("message", check = purge_check, timeout = 30.0)
+            except asyncio.TimeoutError:
+                await ctx.send("Reponse timed out.")
             else:
-                await ctx.send("Purge canceled.")
+                if response.content.lower() == "yes":
+                    await ctx.send("Purging...")
+                    deleted_intros = await introchannel.purge(limit = None, before = date)
+                    await ctx.send(f"Deleted {len(deleted_intros)} intros.")
+                else:
+                    await ctx.send("Purge canceled.")
+        else:
+            await ctx.send("You ain't saint")
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
