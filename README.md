@@ -4,7 +4,15 @@ This is a bot made with discordpy for the Discord server [Dawdle](discord.gg/daw
 
 The server it was built for is hardcoded into the bot, but if you still somehow find any bits of it useful you're welcome to take it.
 
-Contact amer#1111 with any questions.
+### Contribution Guide
+
+* DM amer first with an idea you think would benefit dawdlebot keeping the server needs in mind.
+* If the idea is approved, you'll be added as a contributor.
+* Put all new code either in a new or (if applicable) existing cog in [`/src/db_modules/`](https://github.com/DawdleDiscord/dawdlebot/tree/master/src/db_modules)
+* Add your cog to the [`__init__.py`](https://github.com/DawdleDiscord/dawdlebot/blob/master/src/db_modules/__init__.py)
+* Import it and add the appropriate `bot.add_cog()` line in [`dawdlebot.py`](https://github.com/DawdleDiscord/dawdlebot/blob/master/dawdlebot.py)
+* Open a PR 
+
 
 ### Some Current Features
 
