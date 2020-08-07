@@ -4,7 +4,7 @@ from .db_checks import is_member
 from discord.ext import commands
 
 
-class fuzzies(commands.Cog):
+class db_fuzzies(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 		with open('src/data/fuzzies.json', 'r') as json_f_r:
@@ -51,6 +51,3 @@ class fuzzies(commands.Cog):
 						elif reactemoj.id == 609771973102534687:
 							fuzzMem = await dawdle.fetch_member(fmess.embeds[0].footer.text)
 							await fuzzMem.send('Your fuzzie has been denied because it did not follow the rules. Please review them before trying again.')
-
-
-

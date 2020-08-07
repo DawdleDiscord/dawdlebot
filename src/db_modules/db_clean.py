@@ -3,7 +3,7 @@ import json,typing
 from .db_checks import is_mod
 from discord.ext import commands
 
-class clean(commands.Cog):
+class db_clean(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 

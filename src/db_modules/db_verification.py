@@ -4,7 +4,7 @@ import datetime
 from .db_checks import is_mod
 from .db_converters import SmartMember
 
-class verification(commands.Cog):
+class db_verification(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 	# 	with open('src/data/verification.json', 'r') as json_file:

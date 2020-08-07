@@ -5,7 +5,7 @@ from .db_converters import SmartMember
 import datetime
 import typing
 
-class moderation(commands.Cog):
+class db_moderation(commands.Cog):
 	def __init__(self,bot):
 		self.bot = bot
 	@commands.command()
@@ -17,7 +17,6 @@ class moderation(commands.Cog):
 			member = user
 		else:
 			member = await self.bot.fetch_user(user)
-		await dawdle.ban(user=member)
 		admonitions = dawdle.get_channel(527899554184691715)
 		banEmbed = discord.Embed(title=f'{member} has been banned', color=0xffb6c1)
 		await ctx.send(embed=banEmbed)
@@ -27,6 +26,7 @@ class moderation(commands.Cog):
 				await member.send('You have been banned from Dawdle.')
 			except:
 				pass
+		await dawdle.ban(user=member)
 
 	@commands.command()
 	@is_mod()

@@ -57,13 +57,20 @@ class db_autoreact(commands.Cog):
 
 		dawdle = ctx.guild
 		channellist = []
+		dellist = []
 		if self.reacts_dict.keys():
 			for ch_id in self.reacts_dict.keys():
 				channel = dawdle.get_channel(int(ch_id))
-				channel_str = f"{channel.mention}: "
-				for emoji in self.reacts_dict[ch_id]:
-					channel_str = channel_str+f"{emoji} "
-				channellist.append(channel_str)
+				if channel:
+					channel_str = f"{channel.mention}: "
+					for emoji in self.reacts_dict[ch_id]:
+						channel_str = channel_str+f"{emoji} "
+					channellist.append(channel_str)
+				else:
+					dellist.append(ch_id)
+			if dellist:
+				for ch in dellist:
+					del self.reacts_dict[ch]
 
 			channellist_str = "\n".join(channellist)
 

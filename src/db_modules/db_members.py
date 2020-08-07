@@ -4,7 +4,7 @@ from discord.ext import commands,tasks
 import typing
 from .db_converters import SmartMember
 
-class members(commands.Cog):
+class db_members(commands.Cog):
 	def __init__(self,bot):
 		self.bot = bot
 
@@ -23,10 +23,10 @@ class members(commands.Cog):
 			introchannel = dawdle.get_channel(514555898648330260)
 			await ctx.send('Checking for roles and intros... this may take a bit.')
 			def emoji_response(check):
-				if check == True: 
+				if check == True:
 					return '<:pinkcheck:609771973341610033>'
-				else: 
-					return '<:pinkx:609771973102534687>'	
+				else:
+					return '<:pinkx:609771973102534687>'
 			for mem in verifiedrole.members:
 
 				hasIntro = False
@@ -86,13 +86,5 @@ class members(commands.Cog):
 					channel = dawdle.get_channel(ch_id)
 					deleted = await channel.purge(limit=None, check = is_user)
 					if len(deleted) > 0:
-						await ctx.send(f'Purged {len(deleted)} posts in {channel.mention} from {member.mention}')	
-				await ctx.send('Done cleaning')			
-
-
-
-
-
-
-
-
+						await ctx.send(f'Purged {len(deleted)} posts in {channel.mention} from {member.mention}')
+				await ctx.send('Done cleaning')

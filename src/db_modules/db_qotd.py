@@ -5,7 +5,7 @@ from .db_checks import is_mod
 
 from discord.ext import commands,tasks
 
-class qotd(commands.Cog):
+class db_qotd(commands.Cog):
 	def __init__(self,bot):
 		self.bot = bot
 		self.qotdcheck.start()

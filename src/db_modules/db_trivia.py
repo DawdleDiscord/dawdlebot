@@ -113,7 +113,24 @@ class db_trivia(commands.Cog):
         lbEmbed = discord.Embed(title = "Trivia Streak Leaderboard", description = "```"+"\n".join(lb_str_list)+"```", color = 0xffb6c1)
         await ctx.send(embed = lbEmbed)
 
-
+    @trivia.command()
+    @is_mod()
+    async def lbreset(self, ctx):
+        await ctx.send("This will reset the active streak leaderboard. Are you sure? (yes/no)")
+        try:
+            def resp_check(mess):
+                return mess.author == ctx.author and mess.channel == ctx.channel and (mess.content.lower() == "yes" or mess.content.lower() == "no")
+            resp = await self.bot.wait_for("message", check=resp_check, timeout = 30.0)
+        except asyncio.TimeoutError:
+            await ctx.send("Response timed out.")
+        else:
+            if resp.content.lower() == "yes":
+                self.streak_dict = {}
+                with open("src/data/triviastreak.json", "w") as json_file:
+                    json.dump(self.streak_dict, json_file)
+                await ctx.send("Leaderboard reset.")
+            else:
+                await ctx.send("Leaderboard not reset.")
 
     @trivia.command()
     @is_mod()

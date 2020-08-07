@@ -5,7 +5,7 @@ from .db_checks import is_mod
 from discord.ext import commands,tasks
 from .db_converters import SmartMember
 
-class birthdays(commands.Cog):
+class db_birthdays(commands.Cog):
 	def __init__(self,bot):
 		self.bot = bot
 		self.birthdaycheck.start()
