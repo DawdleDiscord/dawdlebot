@@ -158,3 +158,17 @@ the bot will post next question in the queue every day, then delete it from the 
 `~trivia list` Lists all current trivia questions. Use the arrows to go between pages.
 
 `~trivia edit <question>` Starts an interface to edit or delete the question. Question can either be specified by the question text or the index next to it in `~trivia list`. Be careful of ambiguities between those two possibilities.
+
+### Welcome/Goodbye
+
+`~setwelcome` and `~setgoodbye` Brings up a menu to change the welcome/goodbye message. It requires putting a name in the new message, either as a mention, name#xxxx, or just name. 
+
+Mention: `{ment}`
+
+name#xxxx: `{user}`
+
+name: `{name}`
+
+Ex: Welcome {ment} to Dawdle!
+
+
