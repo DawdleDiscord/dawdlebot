@@ -69,6 +69,7 @@ class db_verification(commands.Cog):
 			dawdle = self.bot.get_guild(payload.guild_id)
 			verifchannel = dawdle.get_channel(623016717429374986)
 			message = await verifchannel.fetch_message(payload.message_id)
+			reactor = dawdle.get_member(payload.user_id)
 
 			if message.mentions and "verify" in message.content:
 
@@ -84,7 +85,9 @@ class db_verification(commands.Cog):
 							dotrole = dawdle.get_role(587397534469718022)
 							await user.add_roles(verifiedrole, dotrole)
 							await user.remove_roles(unverifiedrole)
-							await user.send("Thank you for verifying! You’ve successfully completed this process, you are now able to see the majority of the server. Please proceed to get some <#694994576791961630> and to post an <#514555898648330260>! No formats are necessary for introductions, just a little snippet will do. When you are done with both, type `~done` (without the quotes) in <#514560994337620008>.")
+							await user.send("Thank you for verifying! You’ve successfully completed this process, you are now able to see the majority of the server. Please proceed to get some <#694994576791961630> and to post an <#514555898648330260>! No formats are necessary for introductions, just a little snippet will do. When you are done with both, type `~done` in <#514560994337620008>.")
+							await message.edit(content=f"{user.mention} was verified by {reactor}")
+							await message.clear_reactions()
 
 						if str(react.emoji) == '<:pinkx:609771973102534687>':
 							await user.send("Sorry, but the pictures you provided do not follow our outlines as described in <#479407137060028449>. Please review and try again!")

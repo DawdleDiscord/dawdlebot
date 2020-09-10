@@ -67,7 +67,7 @@ class db_members(commands.Cog):
 
 		if ctx.guild:
 			dawdle = ctx.guild
-			channel_list = [514555898648330260, 514556004822941696, 564613278874075166, 514556101052858378, 600720406902734858]
+			channel_list = [514555898648330260, 514556004822941696, 564613278874075166, 514556101052858378]#, 600720406902734858]
 			if not member:
 				def is_member(message):
 					return not isinstance(message.author,discord.Member)

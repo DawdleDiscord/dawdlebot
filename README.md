@@ -48,6 +48,16 @@ Required arguments are denoted by `<argument>`, optional arguments are denoted b
 
 `~trivia leaderboard` shows the current leaderboard of trivia streaks.
 
+`~inventory` to see your item inventory from lootboxes.
+
+`~inventory info <item>` shows information about `item`.
+
+`~profile [member]` see your (if no member put) or `member`'s Dawdle profile.
+
+`~editprofile` brings up a menu to edit the **about** section of your profile.
+
+`~editbanner` brings up a menu to enter a link to the image you would like to use for your profile's banner. You need to include the `https://` and it will only work for as long as that link is valid.
+
 ## Commands: Staff Only
 
 Required arguments are denoted by `<argument>`, optional arguments are denoted by `[argument]`.
@@ -170,5 +180,27 @@ name#xxxx: `{user}`
 name: `{name}`
 
 Ex: Welcome {ment} to Dawdle!
+
+### Inventories
+
+`~editinv add <item_name>` add the item with the given item name to the list of givable items.
+
+`~editinv remove <item_name>` remove the item with the given item name from the list of giveable items.
+
+`~editinv list` list all givable items
+
+`~inv give <member> <number> <item>` give the `member` the `number` amount of `item`.
+
+`~inv take <member> <number> <item>` remove the `number` of `item` from `member`
+
+`~inv show <member>` shows the inventory of another member.
+
+### Profiles
+
+`~givebadge <member_or_role> <emoji 1> <emoji 2> ...` gives either `member` or every member in `role` those emojis as badges.
+
+`~takebadge <member_or_role> <emoji 1> <emoji 2> ...` removes from  either `member` or every member in `role` those emojis as badges.
+
+
 
 

@@ -5,7 +5,7 @@ load_dotenv()
 #sys.path.append('/src')
 from discord.ext.commands import Bot
 from discord.ext import commands, tasks
-from src.db_modules import db_birthdays,db_moderation,db_qotd,db_fuzzies,db_clean,db_verification,db_members
+from src.db_modules import db_birthdays,db_moderation,db_qotd,db_fuzzies,db_clean,db_verification,db_members,db_inventory,db_profile
 from src.db_modules import db_autoreact,db_roles,db_vent,db_VCtrack,db_welcomegoodbye,db_pins,db_info,db_responses,db_trivia,db_miscellaneous
 from src.db_modules import SmartMember
 import json,typing,datetime,asyncio,random
@@ -33,6 +33,8 @@ def main():
 	bot.add_cog(db_trivia(bot))
 	#bot.add_cog(fuzzies(bot))
 	bot.add_cog(db_miscellaneous(bot))
+	bot.add_cog(db_inventory(bot))
+	bot.add_cog(db_profile(bot))
 
 	@bot.event
 	async def on_ready():
