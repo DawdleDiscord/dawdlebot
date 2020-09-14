@@ -3,6 +3,7 @@ from discord.ext import commands
 from .db_converters import SmartMember,SmartRole
 from .db_checks import is_mod,in_dawdle
 import json,typing
+import asyncio
 
 class db_profile(commands.Cog):
 
@@ -30,6 +31,10 @@ class db_profile(commands.Cog):
 				intro_link =  mess.jump_url
 				foundIntro = True
 				break
+		if not str(member.id) in self.profile_dict.keys():
+			self.profile_dict[str(member.id)] = {"extra" : "", "badges" : "", "banner" : ""}
+		elif not "banner" in self.profile_dict[str(member.id)].keys():
+			self.profile_dict[str(member.id)]["banner"] = ""
 		if foundIntro:
 			profileEmbed.add_field(name = "intro", value = f"[Jump!]({intro_link})")
 		if str(member.id) in self.profile_dict.keys() and self.profile_dict[str(member.id)]["badges"]:
@@ -61,7 +66,12 @@ class db_profile(commands.Cog):
 				badge_list = []
 			else:
 				badge_list =  list(self.profile_dict[str(member.id)]["badges"])
-			badge_list += emoji
+			emoj_list = list(emoji)
+			for badg in badge_list:
+				for emoj in emoji:
+					if badg == emoj:
+						emoj_list.remove(emoj)
+			badge_list += emoj_list
 			self.profile_dict[str(member.id)]["badges"] = badge_list
 			with open("src/data/profile.json", "w") as json_file:
 				json.dump(self.profile_dict, json_file)
@@ -83,20 +93,60 @@ class db_profile(commands.Cog):
 				for em in emoji:
 					if em in badge_list:
 						badge_list.remove(em)
-						break
 					else:
 						no_list.append(em)
 				self.profile_dict[str(member.id)]["badges"] = badge_list
 				with open("src/data/profile.json", "w") as json_file:
 					json.dump(self.profile_dict, json_file)
+				emoj_str = "".join(emoji)
 				if no_list:
-					emoj_str = "".join(no_list)
-					to_send = f"done, but {member} did not have the following badge(s): {emoj_str}."
+					no_str = "".join(no_list)
+					to_send = f"Took {emoj_str} from {member} except for {no_str} because they did not have them."
 				else:
-					to_send = "done"
+					to_send = f"Took {emoj_str} from {member}"
 			else:
 				to_send = f"{member} does not have any badges!"
 			await ctx.send(to_send)
+	@commands.command()
+	@is_mod()
+	async def cleanbadges(self, ctx, member_or_role : typing.Union[SmartMember, SmartRole]):
+		if isinstance(member_or_role, discord.Member):
+			mem_list = [member_or_role]
+		else:
+			mem_list = member_or_role.members
+		for member in mem_list:
+			if str(member.id) in self.profile_dict.keys() and "badges" in self.profile_dict[str(member.id)] and self.profile_dict[str(member.id)]["badges"]:
+				for badge in self.profile_dict[str(member.id)]["badges"]:
+					foundBadge = False
+					for emoj in ctx.guild.emojis:
+						if badge == str(emoj):
+							foundBadge = True
+							break
+					if not foundBadge:
+						testserver = self.bot.get_guild(622553382279708672)
+						for emoj in testserver.emojis:
+							if badge == str(emoj):
+								foundBadge = True
+								break
+					if not foundBadge:
+						self.profile_dict[str(member.id)]["badges"].remove(badge)
+						await ctx.send(f"Removed bad badge {badge} from {member}")
+		with open("src/data/profile.json", "w") as json_file:
+				json.dump(self.profile_dict, json_file)
+
+	@commands.command()
+	@is_mod()
+	async def cleanprofiles(self, ctx):
+		to_delete = []
+		for mem_id in self.profile_dict.keys():
+			if not ctx.guild.get_member(int(mem_id)):
+				to_delete.append(mem_id)
+		with open("src/data/profile.json", "w") as json_file:
+				json.dump(self.profile_dict, json_file)
+		if to_delete:
+			for mem_id in to_delete:
+				del self.profile_dict[mem_id]
+		await ctx.send(f"Cleaned {len(to_delete)} profiles of members who left")
 
 	@commands.command()
 	@in_dawdle()
@@ -138,6 +188,8 @@ class db_profile(commands.Cog):
 				with open("src/data/profile.json", "w") as json_file:
 					json.dump(self.profile_dict, json_file)
 					await bannerresp.edit(content="Banner deleted.")
+			elif response.content.lower()[0:4] != "http":
+				await bannerresp.edit(content="Your url needs to start with `http` or `https`, try again.")
 			else:
 				if not str(ctx.author.id) in self.profile_dict.keys():
 					self.profile_dict[str(ctx.author.id)] = {"extra" : "", "badges" : "", "banner" : ""}
