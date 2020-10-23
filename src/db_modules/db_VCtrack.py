@@ -17,7 +17,7 @@ class db_VCtrack(commands.Cog):
 		musicchannel = dawdle.get_channel(479408746955669524)
 		afkchannel = dawdle.get_channel(533325041723506688)
 		#Check if they joined a voice channel
-		if before.channel is None and after.channel is not None and after.channel != musicchannel and after.channel != afkchannel:
+		if (before.channel is None or before.channel == musicchannel or before.channel == afkchannel) and after.channel is not None and after.channel != musicchannel and after.channel != afkchannel:
 			currentTime = datetime.datetime.utcnow()
 			#Set the time for when they joined
 			self.userAndDate[member.id] = currentTime
