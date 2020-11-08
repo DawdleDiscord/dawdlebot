@@ -16,7 +16,7 @@ class db_autoreact(commands.Cog):
 	@is_mod()
 	async def autoreact(self, ctx):
 		if ctx.invoked_subcommand is None:
-			await ctx.send('Invalid clean command')
+			await ctx.send('Invalid autoreact command')
 
 	@autoreact.command()
 	async def add(self, ctx, channel : discord.TextChannel, *emoji : str):

@@ -247,6 +247,6 @@ class db_info(commands.Cog):
 		else:
 			await ctx.send('Topic not found.')
 
-	#async def cog_command_error(self, ctx, error):
-	#	print(error)
-	#	await ctx.send(f'Error: {error}')
+	async def cog_command_error(self, ctx, error):
+		print(error)
+		await ctx.send(f'Error: {error}')

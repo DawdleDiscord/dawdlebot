@@ -62,29 +62,34 @@ class db_members(commands.Cog):
 						await ctx.send(f'Gave dot role to {mem.mention}. Intro: {intro_emoji} Roles: {role_emoji}')
 
 			await ctx.send('Done checking for intros and roles')
-	@members.command()
-	async def clean(self, ctx, member : typing.Optional[SmartMember]):
+	# @members.command()
+	# async def clean(self, ctx, member : typing.Optional[SmartMember]):
+	# 	if ctx.guild:
+	# 		await ctx.send("No purging enabled")
+	# 		dawdle = ctx.guild
+	# 		channel_list = [514555898648330260, 514556004822941696, 564613278874075166, 514556101052858378]#, 600720406902734858]
+	# 		if not member:
+	# 			def is_member(message):
+	# 				return not isinstance(message.author,discord.Member)
+	# 			for ch_id in channel_list:
+	# 				channel = dawdle.get_channel(ch_id)
+	# 				async for mess in channel.history(limit=None):
+	# 					if is_member(mess) == False:
+	# 						print(f"would delete message from {mess.author}")
+	# 					else:
+	# 						print(f"would not delete message from {mess.author}")
+	# 				#deleted = await channel.purge(limit=None, check = is_member)
+	# 				#if len(deleted) > 0:
+	# 					#await ctx.send(f'Purged {len(deleted)} posts in {channel.mention}')
 
-		if ctx.guild:
-			dawdle = ctx.guild
-			channel_list = [514555898648330260, 514556004822941696, 564613278874075166, 514556101052858378]#, 600720406902734858]
-			if not member:
-				def is_member(message):
-					return not isinstance(message.author,discord.Member)
-				for ch_id in channel_list:
-					channel = dawdle.get_channel(ch_id)
-					deleted = await channel.purge(limit=None, check = is_member)
-					if len(deleted) > 0:
-						await ctx.send(f'Purged {len(deleted)} posts in {channel.mention}')
+	# 			await ctx.send('Done cleaning.')
 
-				await ctx.send('Done cleaning.')
-
-			else:
-				def is_user(message):
-					return message.author == member
-				for ch_id in channel_list:
-					channel = dawdle.get_channel(ch_id)
-					deleted = await channel.purge(limit=None, check = is_user)
-					if len(deleted) > 0:
-						await ctx.send(f'Purged {len(deleted)} posts in {channel.mention} from {member.mention}')
-				await ctx.send('Done cleaning')
+			#else:
+			#	def is_user(message):
+			#		return message.author == member
+			#	for ch_id in channel_list:
+			#		channel = dawdle.get_channel(ch_id)
+			#		deleted = await channel.purge(limit=None, check = is_user)
+			#		if len(deleted) > 0:
+			#			await ctx.send(f'Purged {len(deleted)} posts in {channel.mention} from {member.mention}')
+			#	await ctx.send('Done cleaning')
