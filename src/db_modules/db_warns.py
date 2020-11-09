@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from .db_checks import is_mod
+from .db_checks import is_mod,in_dawdle
 import datetime
 from .db_converters import SmartMember,SmartRole
 import asyncio
@@ -19,11 +19,15 @@ class db_warns(commands.Cog):
 				self.all_warns = []
 
 	async def get_warn_embed(self, ctx, current_warn):
-		warn_embed = discord.Embed(title = "Warning", color=0xffb6c1)				
-		warn_embed.add_field(name = "member", value = ctx.guild.get_member(current_warn["member"]).mention)
+		warn_embed = discord.Embed(title = "Warning", color=0xffb6c1)
+		if ctx.guild and ctx.guild.get_member(current_warn["member"]) is not None:				
+			warn_embed.add_field(name = "member", value = ctx.guild.get_member(current_warn["member"]).mention)
+		else:
+			member_name = await self.bot.fetch_user(current_warn["member"])
+			warn_embed.add_field(name = "member", value = member_name)
 		warn_embed.add_field(name = "rule", value = current_warn["rule"])			
 		warn_embed.add_field(name = "context", value = current_warn["context"])
-		if ctx.guild.get_member(current_warn["mod"]) is not None:
+		if ctx.guild and ctx.guild.get_member(current_warn["mod"]) is not None:
 			warn_embed.add_field(name = "mod", value = ctx.guild.get_member(current_warn["mod"]).mention)
 		else:
 			mod_name = await self.bot.fetch_user(current_warn["mod"])
@@ -69,7 +73,7 @@ class db_warns(commands.Cog):
 				self.all_warns.append(current_warn)
 				self.save_warnings()
 				await ctx.send(embed=warn_embed)
-				if admon:
+				if admon and rule.lower() != "verbal":
 					admonchannel = ctx.guild.get_channel(527899554184691715)
 					await admonchannel.send(f"```{member} was warned by {ctx.author.name} (Rule {rule})```")
 					try:
@@ -79,13 +83,39 @@ class db_warns(commands.Cog):
 
 	@commands.command()
 	@is_mod()
-	async def warnings(self, ctx, member : SmartMember):
+	async def warnings(self, ctx, member : SmartMember, warn_type : typing.Optional[str] = ""):
 		counter = 1
+		is_any = False
 		for warn in self.all_warns:
 			if warn["member"] == member.id:
+				if warn_type == "verbal" and warn["rule"].lower() != "verbal":
+					counter += 1
+					continue
+				if warn_type == "nonverbal" and warn["rule"].lower() == "verbal":
+					counter += 1
+					continue
+				is_any = True
 				warn_embed = await self.get_warn_embed(ctx, warn)
 				await ctx.send(content = f"**Warn {counter}**", embed = warn_embed)
 				counter += 1
+		if not is_any:
+			await ctx.send(f"{member} has no {warn_type} warnings.")
+	
+	@commands.command()
+	async def mywarnings(self, ctx):
+		is_any = False
+		counter = 1
+		for warn in self.all_warns:
+			if warn["member"] == ctx.author.id and warn["rule"].lower() != "verbal":
+				warn_embed = await self.get_warn_embed(ctx, warn)
+				warn_embed.remove_field(2)
+				if len(warn_embed.fields) == 5:
+					warn_embed.remove_field(4)
+				is_any = True
+				await ctx.send(content = f"**Warn {counter}**", embed = warn_embed)
+				counter += 1
+		if not is_any:
+			await ctx.send("You have no warnings.")
 
 	@commands.command()
 	@is_mod()
