@@ -78,6 +78,15 @@ All `member` arguments work by ID, mention, username, or nickname. nick/username
 
 `~prune <# of messages> [member/userID]` Prunes the given number of messages. Including a member or userID will prune only those messages sent by that user.
 
+### Warnings
+
+`~warn <member> <rule #> [yes/no]` Will create a warning for `member`. It will ask for context, once you reply the warning will be saved. You can include attachments in the reply. `Yes/no` tells it whether or not to post an admonition. The default option is `yes`. 
+
+`~warnings <member>` Will pull up all warnings of `member`. Reference the warning number to edit/delete warnings.
+
+`~editwarning <member> <warning number>` Edit the context of the `warning number` warning for `member`. Reference `~warning` to find the number. (Cannot edit attachments at this time.)
+
+`~deletewarning <member> <warning number>` (alias: `~delwarning`) Delete the `warning number` warning for `member`. Reference `~warning` to find the number.
 
 ### Members
 
