@@ -92,7 +92,7 @@ class db_moderation(commands.Cog):
 			foyer = dawdle.get_channel(514554494495752204)
 			unverifiedrole = dawdle.get_role(479410607821684757)
 			await parlor.set_permissions(target=unverifiedrole,read_messages = False, send_messages =  False)
-			await ctx.send('Parlor has been locked from unverified members. Use \`/lockdown unlock\` to undo this.')
+			await ctx.send('Parlor has been locked from unverified members. Use \`~lockdown unlock\` to undo this.')
 			await foyer.send('The main chat has been locked from unverified members due to a raid. Please be patient for staff to handle the issue.')
 
 	@lockdown.command()
@@ -103,7 +103,7 @@ class db_moderation(commands.Cog):
 			foyer = dawdle.get_channel(514554494495752204)
 			unverifiedrole = dawdle.get_role(479410607821684757)
 			await parlor.set_permissions(target=unverifiedrole,read_messages = True, send_messages =  True)
-			await ctx.send('Parlor has been unlocked for unverified members. Use \`/lockdown lock\` to undo this.')
+			await ctx.send('Parlor has been unlocked for unverified members. Use \`~lockdown lock\` to undo this.')
 			await foyer.send('The main chat has been unlocked for unverified members.')
 
 	@commands.command()
@@ -131,7 +131,7 @@ class db_moderation(commands.Cog):
 	@report.error
 	async def report_error(self, ctx,error):
 		if isinstance(error,commands.errors.MissingRequiredArgument):
-			await ctx.send('It looks like you are sending a report. You need text after the `/report`.')
+			await ctx.send('It looks like you are sending a report. You need text after the `~report`.')
 
 
 	async def cog_command_error(self, ctx, error):

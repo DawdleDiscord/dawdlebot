@@ -291,9 +291,9 @@ class db_inventory(commands.Cog):
 	@inventory.command()
 	@is_mod()
 	async def show(self, ctx, member : SmartMember):
+		item_list_str = []
 		try:
 			item_list = self.invusers[str(member.id)]
-			item_list_str = []
 			for item in item_list.keys():
 				item_list_str.append(f"{item} - {item_list[item]}")
 			descr = "\n".join(item_list_str)

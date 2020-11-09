@@ -42,10 +42,13 @@ class db_profile(commands.Cog):
 			for badge in self.profile_dict[str(member.id)]["badges"]:
 				badge_str += badge
 			profileEmbed.add_field(name = "badges", value = badge_str)
+		profileEmbed.add_field(name = "account made", value = member.created_at.date().strftime("%d %m %Y"))
+		profileEmbed.add_field(name = "joined server", value = member.joined_at.date().strftime("%d %m %Y"))
 		if str(member.id) in self.profile_dict.keys() and self.profile_dict[str(member.id)]["extra"]:
 			profileEmbed.add_field(name = "about", value = self.profile_dict[str(member.id)]["extra"], inline = False)
 		if str(member.id) in self.profile_dict.keys() and self.profile_dict[str(member.id)]["banner"]:
 			profileEmbed.set_image(url = self.profile_dict[str(member.id)]["banner"])
+
 		await ctx.send(embed=profileEmbed)
 	@profile.error
 	async def profile_error(self, ctx, error):	
@@ -59,6 +62,7 @@ class db_profile(commands.Cog):
 			mem_list = [member_or_role]
 		else:
 			mem_list = member_or_role.members
+		spamchannel = ctx.guild.get_channel(514560994337620008)
 		for member in mem_list:
 			if not str(member.id) in self.profile_dict.keys():
 				self.profile_dict[str(member.id)] = {"extra" : "", "badges" : ""}
@@ -71,13 +75,15 @@ class db_profile(commands.Cog):
 				for emoj in emoji:
 					if badg == emoj:
 						emoj_list.remove(emoj)
+			if emoj_list:
+				emoj_str = "".join(emoj_list)
+				await ctx.send(f"Gave {member} the following badge(s): {emoj_str}")
+				await spamchannel.send(f"{member.mention} just received the {emoj_str} badge(s)!")
 			badge_list += emoj_list
 			self.profile_dict[str(member.id)]["badges"] = badge_list
-			with open("src/data/profile.json", "w") as json_file:
-				json.dump(self.profile_dict, json_file)
-			emoj_str = "".join(emoji)
-			await ctx.send(f"Gave {member} the following badge(s): {emoj_str}")
-
+		with open("src/data/profile.json", "w") as json_file:
+			json.dump(self.profile_dict, json_file)
+		await ctx.send(f"Done giving out badges to `{member_or_role}`.")
 
 	@commands.command()
 	@is_mod()

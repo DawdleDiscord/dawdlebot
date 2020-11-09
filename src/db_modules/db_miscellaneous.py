@@ -111,3 +111,9 @@ class db_miscellaneous(commands.Cog):
 							await ctx.send(f"removing reaction {react.emoji} for {user.name}")
 							await mess.remove_reaction(react, user)
 		await ctx.send(f"{roleschannel.mention} has been cleaned!")
+
+	@commands.command()
+	@is_mod()
+	async def downmessage(self, ctx):
+		anncmtchannel = ctx.guild.get_channel(514555734055452672)
+		await anncmtchannel.send("<a:weewoo:722927523545088092> **Dawdlebot** <a:weewoo:722927523545088092> \n \n<a:jumpy:642889102630453248> Hello! It’s me Dawdlebot. I’m currently undergoing maintenance, so my features may not work correctly for a bit. \n \n<a:jumpy:642889102630453248> Don’t worry, I’ll be back soon. In the meantime, upvote this message to petition for Dawdlebot sentience.")
