@@ -4,141 +4,136 @@ from .db_checks import is_mod
 import datetime
 from .db_converters import SmartMember,SmartRole
 import asyncio
+import json
+import typing
 
-class db_roles(commands.Cog):
+class db_warns(commands.Cog):
 
 	def __init__(self, bot):
 		self.bot = bot
-
-	@commands.group()
-	@is_mod()
-	async def roles(self, ctx):
-		if ctx.invoked_subcommand is None:
-			await ctx.send('Invalid roles command')
-
-	@roles.command()
-	async def color(self, ctx, role : SmartRole, newcolor : discord.Colour):
-		oldcolor = role.color
-		await role.edit(color=newcolor)
-		returnEmbed = discord.Embed(title=f"Changed the role color for {role.name} to {str(newcolor)}. Old color: {str(oldcolor)}.",color=newcolor)
-		await ctx.send(embed=returnEmbed)
-
-	@roles.command()
-	async def mentionable(self, ctx,*, role : SmartRole):
-		if role.mentionable:
-			await role.edit(mentionable = False)
-			roleEmbed = discord.Embed(title= f"{role} is no longer mentionable.", color = 0xffb6c1)
-		else:
-			await role.edit(mentionable = True)
-			await ctx.send(f"{role} is now mentionable.")
-			roleEmbed = discord.Embed(title = f"{role} is now mentionable.",color = 0xffb6c1)
-		await ctx.send(embed=roleEmbed)
-
-
-	@roles.command()
-	async def sidebar(self, ctx,*, role : SmartRole):
-		if role.hoist:
-			await role.edit(hoist=False)
-			message = f"{role} will no longer show on the sidebar"
-		else:
-			await role.edit(hoist=True)
-			message = f"{role} will now show on the sidebar"
-		roleEmbed =discord.Embed(title = message, color = 0xffb6c1)
-		await ctx.send(embed=roleEmbed)
-
-	@roles.command()
-	async def name(self, ctx, role : SmartRole,*, newname : str):
-		oldname = role.name
-		await role.edit(name = newname)
-		returnEmbed = discord.Embed(title= f"`{oldname}` was changed to `{newname}`")
-		await ctx.send(embed=returnEmbed)
-
-	@roles.command()
-	async def position(self, ctx, role : SmartRole, newposition : int):
-		oldposition = role.position
-		await role.edit(position = newposition)
-		returnEmbed = discord.Embed(title = f"{role} was moved to position {newposition}")
-		await ctx.send(embed=returnEmbed)
-
-	@roles.command()
-	async def kick(self, ctx, role : SmartRole, hours : int):
-		dawdle = ctx.guild
-		unverifiedrole = dawdle.get_role(479410607821684757)
-		dotrole = dawdle.get_role(587397534469718022)
-		if role == unverifiedrole or role == dotrole:
-			mem_to_kick = []
-			time_seconds = hours*3600
-			for mem in role.members:
-				joined_duration = (datetime.datetime.utcnow() - mem.joined_at)
-				joined_duration_sec = joined_duration.days*86400 + joined_duration.seconds
-				if joined_duration_sec > time_seconds:
-					mem_to_kick.append(mem)
-			await ctx.send(f'Kick {len(mem_to_kick)} members with the {role.mention} role who joined before the past {hours} hours? (yes/no)')
-			def check(m):
-				return m.author == ctx.author and m.channel == ctx.channel and (m.content.lower() == "yes" or m.content.lower() == "no")
+		with open("src/data/warnings.json", "r") as json_file:
 			try:
-				confirm = await self.bot.wait_for('message',check=check,timeout=60.0)
+				self.all_warns = json.load(json_file)
+			except json.decoder.JSONDecodeError:
+				print ("Currently no warns!")
+				self.all_warns = []
 
-			except asyncio.TimeoutError:
+	async def get_warn_embed(self, ctx, current_warn):
+		warn_embed = discord.Embed(title = "Warning", color=0xffb6c1)				
+		warn_embed.add_field(name = "member", value = ctx.guild.get_member(current_warn["member"]).mention)
+		warn_embed.add_field(name = "rule", value = current_warn["rule"])			
+		warn_embed.add_field(name = "context", value = current_warn["context"])
+		if ctx.guild.get_member(current_warn["mod"]) is not None:
+			warn_embed.add_field(name = "mod", value = ctx.guild.get_member(current_warn["mod"]).mention)
+		else:
+			mod_name = await self.bot.fetch_user(current_warn["mod"])
+			warn_embed.add_field(name = "mod", value = mod_name)
+		warn_embed.add_field(name = "date", value = current_warn["date"])
+		if "attachments" in current_warn.keys():
+			warn_embed.add_field(name = "attachments", value = " ".join(current_warn["attachments"]))
+		return warn_embed				
 
-				await ctx.send('Kick timed out.')
+	def save_warnings(self):
+		with open("src/data/warnings.json", "w") as json_file:
+			json.dump(self.all_warns, json_file)
 
+	@commands.command()
+	@is_mod()
+	async def warn(self, ctx, member : SmartMember, rule : str, admon : typing.Optional[bool] = True):
+		current_warn = {}
+		await ctx.send(f"{member.mention} will be warned for `{rule}`. Respond with context or type `cancel`.")
+
+		def check_response(m):
+			return  m.author == ctx.author and m.channel == ctx.channel
+		try: 
+			context_resp = await ctx.bot.wait_for('message', check=check_response, timeout = 180.0)
+		except asyncio.TimeoutError:
+			await ctx.send("Response timed out, warn canceled.")
+		else:
+			if context_resp.content.lower() == "cancel":
+				await ctx.send("Warn canceled.")
 			else:
-				if confirm.content.lower() == "yes":
-					for mem in mem_to_kick:
+				current_warn["member"]  = member.id
+				current_warn["rule"]    = rule
+				current_warn["context"] = context_resp.content
+				current_warn["date"]    = str(datetime.date.today())
+				current_warn["mod"]     = ctx.author.id
+				if len(context_resp.attachments) > 0:
+					url_list = []
+					counter = 1
+					for attach in context_resp.attachments:
+						url_list.append(f"[{counter}]({attach.url})")
+						counter += 1
+					current_warn["attachments"] = url_list
+				warn_embed = await self.get_warn_embed(ctx, current_warn)
+				self.all_warns.append(current_warn)
+				self.save_warnings()
+				await ctx.send(embed=warn_embed)
+				if admon:
+					admonchannel = ctx.guild.get_channel(527899554184691715)
+					await admonchannel.send(f"```{member} was warned by {ctx.author.name} (Rule {rule})```")
+					try:
+						await member.send(f"You have been warned in Dawdle for Rule {rule}. If you would like more information, you can contact staff by responding with`~report <your message>`.")
+					except:
+						await ctx.send(f"I could not DM {member.mention}")
 
-						await dawdle.kick(user=mem)
-						await ctx.send(f'Kicked {mem.name}')
+	@commands.command()
+	@is_mod()
+	async def warnings(self, ctx, member : SmartMember):
+		counter = 1
+		for warn in self.all_warns:
+			if warn["member"] == member.id:
+				warn_embed = await self.get_warn_embed(ctx, warn)
+				await ctx.send(content = f"**Warn {counter}**", embed = warn_embed)
+				counter += 1
 
-					await ctx.send('Done kicking')
-
+	@commands.command()
+	@is_mod()
+	async def editwarning(self, ctx, member : SmartMember, number : int):
+		counter = 1
+		for warnIt in range(len(self.all_warns)):
+			if self.all_warns[warnIt]["member"] == member.id and number == counter:
+				await ctx.send("Reply with updated context.")
+				def check_response(m):
+					return  m.author == ctx.author and m.channel == ctx.channel
+				try: 
+					context_resp = await ctx.bot.wait_for('message', check=check_response, timeout = 180.0)
+				except asyncio.TimeoutError:
+					await ctx.send("Response timed out, update canceled.")
 				else:
-					await ctx.send('Kick cancelled.')
-		else:
-			await ctx.send(f"You can only kick {unverifiedrole.mention} or {dotrole.mention}.")
+					if context_resp.content.lower() == "cancel":
+						await ctx.send("update canceled.")
+					else:
+						self.all_warns[warnIt]["context"] = context_resp.content
+						warn_embed = await self.get_warn_embed(ctx, self.all_warns[warnIt])
+						self.save_warnings()
+						await ctx.send(embed=warn_embed)
+			counter += 1
 
-	@roles.command()
-	async def info(self, ctx,*, role : SmartRole):
-		infoEmbed = discord.Embed(title = "", description = "", color = role.color)
-		infoEmbed.add_field(name="Name", value = role.mention)
-		infoEmbed.add_field(name="Number of Members", value = len(role.members))
-		infoEmbed.add_field(name="Color", value=role.color)
-		infoEmbed.add_field(name = "Mentionable", value = role.mentionable)
-		infoEmbed.add_field(name = "Sidebar", value = role.hoist)
-		infoEmbed.add_field(name = "Position", value=role.position)
-		infoEmbed.set_footer(text=role.id)
-		await ctx.send(embed=infoEmbed)
-
-	@roles.command()
-	async def give(self, ctx, member : SmartMember, *, role : SmartRole):
-
-		await member.add_roles(role)
-		returnEmbed = discord.Embed(title =f"Gave {role} role to {member}", color = 0xffb6c1)
-		await ctx.send(embed=returnEmbed)
-
-	@roles.command()
-	async def remove(self, ctx, member : SmartMember, *, role : SmartRole):
-
-		await member.remove_roles(role)
-		returnEmbed = discord.Embed(title = f"Removed {role} role from {member}", color = 0xffb6c1)
-		await ctx.send(embed=returnEmbed)
-
-	@roles.command()
-	async def members(self, ctx, *,role : SmartRole):
-		if len(role.members) > 0:
-			member_mentions = (mem.mention for mem in role.members)
-			returnEmbed = discord.Embed(title = f"Members of `{role}` role", description ="\n".join(member_mentions), color = 0xffb6c1)
-		else:
-			returnEmbed = discord.Embed(title = f"No members with `{role}` role.", color = 0xffb6c1)
-		await ctx.send(embed = returnEmbed)
-
-
-	async def cog_command_error(self, ctx, error):
-
-		if isinstance(error, commands.BadArgument):
-			await ctx.send('I could not find this role or member.')
-		elif isinstance(error, commands.CheckFailure):
-			await ctx.send('You do not have permissions to do this.')
-		else:
-			await ctx.send(f'Error: {str(error)}')
-			print(error)
+	@commands.command(aliases = ["delwarning"])
+	@is_mod()
+	async def deletewarning(self, ctx, member : SmartMember, number : int):
+		delete_number = -1
+		counter = 1
+		for warnIt in range(len(self.all_warns)):
+			if self.all_warns[warnIt]["member"] == member.id:
+				if number == counter:
+					warn_embed = await self.get_warn_embed(ctx, self.all_warns[warnIt])
+					await ctx.send(content = "Are you sure you want to delete this warnining? (yes/no).", embed = warn_embed)
+					def check_response(m):
+						return  m.author == ctx.author and m.channel == ctx.channel and (m.content.lower() == "yes" or m.content.lower() == "no")
+					try: 
+						context_resp = await ctx.bot.wait_for('message', check=check_response, timeout = 60.0)
+					except asyncio.TimeoutError:
+						await ctx.send("Response timed out, delete canceled.")
+					else:
+						if context_resp.content.lower() == "no":
+							await ctx.send("Delete canceled.")
+						else:
+							delete_number = warnIt
+					break
+				counter += 1
+		if delete_number != -1:
+			del self.all_warns[delete_number]
+			self.save_warnings()
+			await ctx.send("Warning deleted.")

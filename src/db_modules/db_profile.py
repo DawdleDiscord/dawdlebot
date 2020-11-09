@@ -42,10 +42,13 @@ class db_profile(commands.Cog):
 			for badge in self.profile_dict[str(member.id)]["badges"]:
 				badge_str += badge
 			profileEmbed.add_field(name = "badges", value = badge_str)
+		profileEmbed.add_field(name = "account made", value = member.created_at.date().strftime("%d %m %Y"))
+		profileEmbed.add_field(name = "joined server", value = member.joined_at.date().strftime("%d %m %Y"))
 		if str(member.id) in self.profile_dict.keys() and self.profile_dict[str(member.id)]["extra"]:
 			profileEmbed.add_field(name = "about", value = self.profile_dict[str(member.id)]["extra"], inline = False)
 		if str(member.id) in self.profile_dict.keys() and self.profile_dict[str(member.id)]["banner"]:
 			profileEmbed.set_image(url = self.profile_dict[str(member.id)]["banner"])
+
 		await ctx.send(embed=profileEmbed)
 	@profile.error
 	async def profile_error(self, ctx, error):	

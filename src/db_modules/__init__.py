@@ -18,10 +18,12 @@ from .db_trivia           import db_trivia
 from .db_miscellaneous    import db_miscellaneous
 from .db_inventory        import db_inventory
 from .db_profile          import db_profile
+from .db_warns            import db_warns
 
 #converters
 from .db_converters       import SmartMember
 from .db_converters       import SmartRole
 
+#checks
 from .db_checks           import is_mod
 from .db_checks           import in_dawdle
