@@ -1,6 +1,6 @@
 import discord
 import json,typing
-from .db_checks import is_member
+from .db_checks import is_mod
 from discord.ext import commands
 
 
@@ -8,8 +8,7 @@ class db_fuzzies(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 		with open('src/data/fuzzies.json', 'r') as json_f_r:
-			fuzz_dict = json.load(json_f_r)
-		self.fchannel_id = fuzz_dict['channel']
+			self.fuzz_dict = json.load(json_f_r)
 
 
 	@commands.command()
@@ -27,12 +26,24 @@ class db_fuzzies(commands.Cog):
 		await fuzAprv.add_reaction('<:pinkx:609771973102534687>')
 		await ctx.send('Your fuzzie has been sent to staff for approval.')
 
+	@commands.command()
+	@is_mod()
+	async def fuzziechannel(self, ctx, channel : discord.TextChannel):
+		self.fuzz_dict['channel'] = channel.id
+		with open('src/data/fuzzies.json', 'w') as file:
+			json.dump(self.fuzz_dict, file)
+		await ctx.send(f"Fuzzies channel was set to {channel.mention}!")
+
+
+
+
 	@commands.Cog.listener()
 	async def on_raw_reaction_add(self, payload):
 		for guild in self.bot.guilds:
 			if guild.name == 'dawdle':
 				dawdle = guild
 				break
+		fchannel_id = self.fuzz_dict['channel']
 		if payload.guild_id == 475584392740339712 and payload.channel_id == 623016717429374986:
 			dbchannel = dawdle.get_channel(623016717429374986)
 			fmess = await dbchannel.fetch_message(payload.message_id)
@@ -41,7 +52,7 @@ class db_fuzzies(commands.Cog):
 				for react in fmess.reactions:
 					if react.emoji == reactemoj and react.count == 2:
 						if reactemoj.id == 609771973341610033:
-							fchannel = dawdle.get_channel(self.fchannel_id)
+							fchannel = dawdle.get_channel(fchannel_id)
 							fuzzie = fmess.embeds[0].description
 							fEmbed = discord.Embed(title = '', description=fuzzie,color=0xffb6c1)
 							finalfMess = await fchannel.send(embed=fEmbed)

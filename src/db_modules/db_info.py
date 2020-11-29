@@ -30,28 +30,29 @@ class db_info(commands.Cog):
 			return False
 
 	async def search_info(self, ctx, keyword1, keyword2 = "aaaaaaaaaaaaaaa"):
-		search_results = {}
+		search_results = []
 		keyword1 = keyword1.lower()
 		keyword2 = keyword2.lower()
 		for key in self.info_dict.keys():
 			for subkey in self.info_dict[key].keys():
 				if keyword1 in self.info_dict[key][subkey].lower() or keyword2 in self.info_dict[key][subkey].lower():
-					search_results[key] = subkey
-		if len(search_results.keys()) == 0:
+					search_results.append([key, subkey])
+		if len(search_results) == 0:
 			return None
 			
-		elif len(search_results.keys()) == 1:
-			for key in search_results.keys():
-				infoEmbed = discord.Embed(title = f"`{key} : {search_results[key]}`", description = self.info_dict[key][search_results[key]], color=0xffb6c1)
+		elif len(search_results) == 1:
+			infoEmbed = discord.Embed(title = f"`{search_results[0][0]} : {search_results[0][1]}`", description = self.info_dict[key][search_results[0][1]], color=0xffb6c1)
 			return infoEmbed
 		else:
 			counter = 1
 			results_list = []
-			for key in search_results.keys():
-				if key == search_results[key]:
+			for res in search_results:
+				key = res[0]
+				subkey = res[1]
+				if key == subkey:
 					results_list.append(f"[{counter}] {key}")
 				else:
-					results_list.append(f"[{counter}] {key} : {search_results[key]}")
+					results_list.append(f"[{counter}] {key} : {subkey}")
 				counter += 1
 			
 			results_list_str = f'Multiple results, select number next to info you would like to see.```\n'+'\n'.join(results_list)+'\n```'
@@ -69,9 +70,8 @@ class db_info(commands.Cog):
 					await ctx.send('Selection canceled.')
 					return None
 				else:
-					search_results_list = list(search_results)
-					topic_to_send = search_results_list[int(confirm.content) - 1]
-					subtopic_to_send = search_results[topic_to_send]
+					topic_to_send = search_results[int(confirm.content) - 1][0]
+					subtopic_to_send = search_results[int(confirm.content) - 1][1]
 					infoEmbed = discord.Embed(title = f"`{topic_to_send} : {subtopic_to_send}`", description = self.info_dict[topic_to_send][subtopic_to_send], color=0xffb6c1)
 					return infoEmbed
 

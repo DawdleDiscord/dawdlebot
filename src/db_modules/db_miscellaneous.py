@@ -60,7 +60,7 @@ class db_miscellaneous(commands.Cog):
 					await message.author.send(f"Your message was deleted because it used the 😂 emoji!\n\n Your message:\n{message.content}")
 				except:
 					pass
-			if message.author.id == 292953664492929025 and not message.embeds:
+			if message.author.id == 356950275044671499 and not message.embeds:
 				staffrole = dawdle.get_role(519616340940554270)
 				if staffrole.mention in message.content:
 					await message.channel.send(staffrole.mention)

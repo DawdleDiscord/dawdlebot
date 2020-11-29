@@ -3,6 +3,7 @@ from .db_checks import is_mod
 from discord.ext import commands,tasks
 import typing
 from .db_converters import SmartMember
+import asyncio
 
 class db_members(commands.Cog):
 	def __init__(self,bot):
@@ -62,34 +63,54 @@ class db_members(commands.Cog):
 						await ctx.send(f'Gave dot role to {mem.mention}. Intro: {intro_emoji} Roles: {role_emoji}')
 
 			await ctx.send('Done checking for intros and roles')
-	# @members.command()
-	# async def clean(self, ctx, member : typing.Optional[SmartMember]):
-	# 	if ctx.guild:
-	# 		await ctx.send("No purging enabled")
-	# 		dawdle = ctx.guild
-	# 		channel_list = [514555898648330260, 514556004822941696, 564613278874075166, 514556101052858378]#, 600720406902734858]
-	# 		if not member:
-	# 			def is_member(message):
-	# 				return not isinstance(message.author,discord.Member)
-	# 			for ch_id in channel_list:
-	# 				channel = dawdle.get_channel(ch_id)
-	# 				async for mess in channel.history(limit=None):
-	# 					if is_member(mess) == False:
-	# 						print(f"would delete message from {mess.author}")
-	# 					else:
-	# 						print(f"would not delete message from {mess.author}")
-	# 				#deleted = await channel.purge(limit=None, check = is_member)
-	# 				#if len(deleted) > 0:
-	# 					#await ctx.send(f'Purged {len(deleted)} posts in {channel.mention}')
+	@members.command()
+	async def clean(self, ctx, member : typing.Optional[SmartMember]):
+		if ctx.guild:
+			dawdle = ctx.guild
+			channel_list = [514555898648330260, 514556004822941696, 564613278874075166, 514556101052858378]#, 600720406902734858]
+			to_send = ""
+			delete_any = False
+			if not member:
+				await ctx.send("Beep boop calculating how much to delete...")
+				def is_member(message):
+					return not isinstance(message.author,discord.Member)
+				for ch_id in channel_list:
+					ndelete = 0
+					channel = dawdle.get_channel(ch_id)
+					async for mess in channel.history(limit=None):
+						if is_member(mess) == True:
+							ndelete += 1
+					if ndelete > 0: delete_any = True
+					to_send += f"Will delete {ndelete} messages from {channel.mention}\n\n"
+				if delete_any:
+					to_send += f"{ctx.author.mention}, do I proceed?"
+					await ctx.send(to_send)
+					def delete_response(m):
+						return m.author == ctx.author and m.channel == ctx.channel and (m.content.lower() == "yes" or m.content.lower() == "no")
+					try:
+						response = await self.bot.wait_for("message",  check = delete_response, timeout = 60.0)
+					except asyncio.TimeoutError:
+						await ctx.send('Response timed out.')
+					else:
+						if response.content.lower() == "yes":
+							async with ctx.typing():
+								for ch_id in channel_list:
+									channel = dawdle.get_channel(ch_id)
+									deleted = await channel.purge(limit=None, check = is_member)
+									await ctx.send(f'Purged {len(deleted)} posts in {channel.mention}')
+								await ctx.send('Done cleaning.')
+						else:
+							await ctx.send("Clean canceled.")
+				else:
+					await ctx.send("Nothing for me to clean :(")
+				
 
-	# 			await ctx.send('Done cleaning.')
-
-			#else:
-			#	def is_user(message):
-			#		return message.author == member
-			#	for ch_id in channel_list:
-			#		channel = dawdle.get_channel(ch_id)
-			#		deleted = await channel.purge(limit=None, check = is_user)
-			#		if len(deleted) > 0:
-			#			await ctx.send(f'Purged {len(deleted)} posts in {channel.mention} from {member.mention}')
-			#	await ctx.send('Done cleaning')
+			else:
+				def is_user(message):
+					return message.author == member
+				for ch_id in channel_list:
+					channel = dawdle.get_channel(ch_id)
+					deleted = await channel.purge(limit=None, check = is_user)
+					if len(deleted) > 0:
+						await ctx.send(f'Purged {len(deleted)} posts in {channel.mention} from {member.mention}')
+				await ctx.send('Done cleaning')

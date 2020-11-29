@@ -52,8 +52,8 @@ class db_vent(commands.Cog):
 						if verifEmoj.id == 609771973341610033:
 							embedVent = ventMess.embeds[0]
 							ventnum = 1
-							async for dmess in ventChannel.history(limit=200):
-								if dmess.author.bot and dmess.embeds and len(dmess.embeds[0].title) > 5:
+							async for dmess in ventChannel.history(limit=None):
+								if dmess.author.bot and dmess.embeds and len(dmess.embeds[0].title) > 5 and dmess.embeds[0].title[16:] != "1":
 									ventnum = int(dmess.embeds[0].title[16:]) + 1
 									break
 
