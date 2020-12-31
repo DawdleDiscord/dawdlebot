@@ -8,11 +8,12 @@ from discord.ext import commands, tasks
 from src.db_modules import db_birthdays,db_moderation,db_qotd,db_fuzzies,db_clean,db_verification,db_members,db_inventory,db_profile,db_warns
 from src.db_modules import db_autoreact,db_roles,db_vent,db_VCtrack,db_welcomegoodbye,db_pins,db_info,db_responses,db_trivia,db_miscellaneous
 from src.db_modules import SmartMember
+from src.db_modules import is_mod
 import json,typing,datetime,asyncio,random
 
 def main():
 
-	intents = discord.Intents(messages=True, guilds=True, members=True)
+	intents = discord.Intents(messages=True, guilds=True, members=True, reactions=True, voice_states=True, presences=True)
 	bot = Bot(command_prefix = '~', intents=intents)
 
 	token = os.getenv('dawdletoken')
@@ -23,7 +24,7 @@ def main():
 	bot.add_cog(db_qotd(bot))
 	bot.add_cog(db_verification(bot))
 	bot.add_cog(db_clean(bot))
-#	bot.add_cog(db_members(bot))
+	bot.add_cog(db_members(bot))
 	bot.add_cog(db_autoreact(bot))
 	bot.add_cog(db_roles(bot))
 	bot.add_cog(db_vent(bot))
@@ -53,7 +54,14 @@ def main():
 	async def on_message(message):
 		await bot.process_commands(message)
 
+	@bot.command()
+	@is_mod()
+	async def logout(ctx):
+		await ctx.send("Logging out.")
+		await bot.logout()
+
 	bot.run(token)
+
 
 if __name__ == '__main__':
 
