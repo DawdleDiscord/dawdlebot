@@ -13,7 +13,7 @@ class db_welcomegoodbye(commands.Cog):
 			except json.decoder.JSONDecodeError:
 				print ("Currently no messages!! Using default.")
 				self.wgb_dict = {"welcome": "Welcome to Dawdle, {ment}. Please read <#479407137060028449> to know how to access the rest of the server! Enjoy your stay.",
-				"goodbye" : "{user} has departed Dawdle. Until next time!"}
+				"goodbye" : "{user} has departed Dawdle. Until next time!", "screened" : False}
 				with open("src/data/wcgb_messages.json", "w") as json_file:
 					json.dump(self.wgb_dict, json_file)
 			self.welcome_form = self.wgb_dict["welcome"]
@@ -92,24 +92,65 @@ class db_welcomegoodbye(commands.Cog):
 				responseEmbed.title = "goodbye message unchanged."
 			await menu.edit(embed = responseEmbed)
 
+	# @commands.command()
+	# @is_mod()
+	# async def setscreened(self, ctx, screen : bool):
+	# 	if "screened" not in self.wgb_dict.keys() or screen != self.wgb_dict["screened"]:
+	# 		self.wgb_dict["screened"] = screen
+	# 		with open("src/data/wcgb_messages.json", "w") as json_file:
+	# 			json.dump(self.wgb_dict, json_file)
+
+	# 		if screen:
+	# 			await ctx.send("Will now only grant unverified role after screening.")
+	# 		else:
+	# 			await ctx.send("Will now grant unverified role upon joining.")
+
+	# 	else: 
+	# 		await ctx.send("This setting is already active.")
+
+
 	@commands.Cog.listener()
 	async def on_member_join(self, member):
-		dawdle = self.bot.get_guild(475584392740339712)
-		unverifrole = dawdle.get_role(479410607821684757)
-		foyerchannel = dawdle.get_channel(514554494495752204)
-		welc_mess = ""
-		if member.guild == dawdle:
-			if self.welcome_form["ident"] == "ment" : welc_mess = self.welcome_form["message"].format(member.mention)
-			elif self.welcome_form["ident"] == "user" : welc_mess = self.welcome_form["message"].format(member)
-			elif self.welcome_form["ident"] == "name" : welc_mess = self.welcome_form["message"].format(member.name)
-			await foyerchannel.send(welc_mess)
-			await member.add_roles(unverifrole)
-			try:
-				await member.send(f'Hi {member.name}, welcome to Dawdle! We\'re so happy to have you! Please read <#479407137060028449> for details on how to get verified so that the rest of the server can be opened up to you.\n \nVerification is required to stay, but we understand if you can\'t do it right away. <#514550733732053012> is open for you to talk and say hi before you verify so you can meet some of the great folks that we have! \n \n**When you\'re ready to verify, please send your items to me (this bot) so that a member of staff can review it and you can access more of the server!**')
-			except:
-				pass
-		countchannel = dawdle.get_channel(705498700771754054)
-		await countchannel.edit(name=f'members: {dawdle.member_count}')
+	#	if "screened" not in self.wgb_dict.keys() or not self.wgb_dict["screened"]:
+		if True:
+			dawdle = self.bot.get_guild(475584392740339712)
+			unverifrole = dawdle.get_role(479410607821684757)
+			foyerchannel = dawdle.get_channel(514554494495752204)
+			welc_mess = ""
+			if member.guild == dawdle:
+				if self.welcome_form["ident"] == "ment" : welc_mess = self.welcome_form["message"].format(member.mention)
+				elif self.welcome_form["ident"] == "user" : welc_mess = self.welcome_form["message"].format(member)
+				elif self.welcome_form["ident"] == "name" : welc_mess = self.welcome_form["message"].format(member.name)
+				await foyerchannel.send(welc_mess)
+				await member.add_roles(unverifrole)
+				try:
+					await member.send(f'Hi {member.name}, welcome to Dawdle! We\'re so happy to have you! Please read <#479407137060028449> for details on how to get verified so that the rest of the server can be opened up to you.\n \nVerification is required to stay, but we understand if you can\'t do it right away. <#514550733732053012> is open for you to talk and say hi before you verify so you can meet some of the great folks that we have! \n \n**When you\'re ready to verify, please send your items to me (this bot) so that a member of staff can review it and you can access more of the server!**')
+				except:
+					pass
+			countchannel = dawdle.get_channel(705498700771754054)
+			await countchannel.edit(name=f'members: {dawdle.member_count}')
+
+	# @commands.Cog.listener()
+	# async def on_member_update(self, before, after):
+	# 	if "screened" in self.wgb_dict.keys() and self.wgb_dict["screened"]:
+	# 		if before.pending and not after.pending:
+	# 			dawdle = self.bot.get_guild(475584392740339712)
+	# 			unverifrole = dawdle.get_role(479410607821684757)
+	# 			foyerchannel = dawdle.get_channel(514554494495752204)
+	# 			welc_mess = ""
+	# 			if member.guild == dawdle:
+	# 				if self.welcome_form["ident"] == "ment" : welc_mess = self.welcome_form["message"].format(member.mention)
+	# 				elif self.welcome_form["ident"] == "user" : welc_mess = self.welcome_form["message"].format(member)
+	# 				elif self.welcome_form["ident"] == "name" : welc_mess = self.welcome_form["message"].format(member.name)
+	# 				await foyerchannel.send(welc_mess)
+	# 				await member.add_roles(unverifrole)
+	# 				try:
+	# 					await member.send(f'Hi {member.name}, welcome to Dawdle! We\'re so happy to have you! Please read <#479407137060028449> for details on how to get verified so that the rest of the server can be opened up to you.\n \nVerification is required to stay, but we understand if you can\'t do it right away. <#514550733732053012> is open for you to talk and say hi before you verify so you can meet some of the great folks that we have! \n \n**When you\'re ready to verify, please send your items to me (this bot) so that a member of staff can review it and you can access more of the server!**')
+	# 				except:
+	# 					pass
+	# 			countchannel = dawdle.get_channel(705498700771754054)
+	# 			await countchannel.edit(name=f'members: {dawdle.member_count}')			
+
 
 	@commands.Cog.listener()
 	async def on_member_remove(self, member):

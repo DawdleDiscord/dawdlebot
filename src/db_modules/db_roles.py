@@ -4,11 +4,18 @@ from .db_checks import is_mod
 import datetime
 from .db_converters import SmartMember,SmartRole
 import asyncio
+import json
 
 class db_roles(commands.Cog):
 
 	def __init__(self, bot):
 		self.bot = bot
+		try:
+			with open("src/data/rolewatch.json", "r") as json_file:
+				self.rolewatch_list = json.load(json_file)
+		except json.decoder.JSONDecodeError:
+			print ("Currently no role watch list.")
+			self.rolewatch_list = []
 
 	@commands.group()
 	@is_mod()
@@ -117,7 +124,7 @@ class db_roles(commands.Cog):
 		await ctx.send(embed=returnEmbed)
 
 	@roles.command()
-	async def remove(self, ctx, member : SmartMember, *, role : SmartRole):
+	async def take(self, ctx, member : SmartMember, *, role : SmartRole):
 
 		await member.remove_roles(role)
 		returnEmbed = discord.Embed(title = f"Removed {role} role from {member}", color = 0xffb6c1)
@@ -131,6 +138,58 @@ class db_roles(commands.Cog):
 		else:
 			returnEmbed = discord.Embed(title = f"No members with `{role}` role.", color = 0xffb6c1)
 		await ctx.send(embed = returnEmbed)
+
+	@roles.group()
+	async def watch(self, ctx):
+		if ctx.invoked_subcommand is None:
+			await ctx.send('Invalid roles watch command')
+
+	@watch.command()
+	async def add(self, ctx, role : SmartRole):
+		if role.id not in self.rolewatch_list:
+			self.rolewatch_list.append(role.id)
+			with open("src/data/rolewatch.json", "w") as json_file:
+				json.dump(self.rolewatch_list, json_file)
+			await ctx.send(f"`{role}` will now be watched.")
+		else:
+			await ctx.send("This role is already being watched.")
+
+	@watch.command()
+	async def remove(self, ctx, role : SmartRole):
+		if role.id in self.rolewatch_list:
+			self.rolewatch_list.remove(role.id)
+			with open("src/data/rolewatch.json", "w") as json_file:
+				json.dump(self.rolewatch_list, json_file)
+			await ctx.send(f"`{role}` will no longer be watched.")
+		else:
+			await ctx.send("This role was already not watched.")	
+
+
+
+	@watch.command()
+	async def list(self, ctx):
+		if self.rolewatch_list:
+			rolewatch_list_str = []
+			for id in self.rolewatch_list:
+				rolewatch_list_str.append(ctx.guild.get_role(id).name)
+			roleEmbed = discord.Embed(title = "Role Watch List", description = "\n".join(rolewatch_list_str), color = 0xffb6c1)
+			await ctx.send(embed=roleEmbed)
+		else:
+			await ctx.send("No roles are being watched.")
+
+	@commands.Cog.listener()
+	async def on_member_update(self, before, after):
+		if before.guild.id == 475584392740339712 and before.roles != after.roles:
+			dawdle = before.guild
+			dawdlechannel = dawdle.get_channel(623016717429374986)
+			for id in self.rolewatch_list:
+				irole = dawdle.get_role(id)
+				if len(before.roles) > len(after.roles) and irole in before.roles and irole not in after.roles:
+					roleEmbed = discord.Embed(title = "Role Update", description = f"{after.mention} no longer has the role `{irole}`.", color = 0xffb6c1)
+					await dawdlechannel.send(embed=roleEmbed)
+				elif len(before.roles) < len(after.roles) and irole not in before.roles and irole in after.roles:
+					roleEmbed = discord.Embed(title = "Role Update", description = f"{after.mention} now has the role `{irole}`.", color = 0xffb6c1)
+					await dawdlechannel.send(embed=roleEmbed)
 
 
 	async def cog_command_error(self, ctx, error):

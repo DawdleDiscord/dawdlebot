@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from .db_checks import is_mod
+from .db_checks import is_mod,in_dawdle
 import datetime
 import asyncio
 import typing
@@ -11,7 +11,7 @@ class db_miscellaneous(commands.Cog):
 		self.bot = bot
 
 	@commands.command()
-	#@is_mod()
+	@is_mod()
 	async def dawdle_information(self, ctx):
 		if ctx.channel.id == 479407137060028449:
 			dawdle = ctx.guild
@@ -39,7 +39,7 @@ class db_miscellaneous(commands.Cog):
 #    		await information.send(file=discord.File('src/images/Partners_-_1000_wd.png'))
 #    		await information.send("We will partner with servers regardless of member count. If your server follows the requirements below, please contact <@291682666246307841> or <@381507393470857229>. \n > <:dotdark:611226752466813040> We will not ping, ever. \n > <:dotmid:611226754123563008> All NSFW content must be behind a wall of verification. \n > <:dotdark:611226752466813040> Must follow Terms of Service. \n > <:dotmid:611226754123563008> If you wish to stay as a representative of your server, you must verify. \n > <:dotdark:611226752466813040> If your link expires, it will be deleted. \n > <:dotmid:611226754123563008> All partners must follow the rules of the server, no exceptions will be made.")
 			await information.send(file=discord.File('src/images/Levels_-_1000_wd.png'))
-			await information.send("Levels are obtained by being active in channels. \n > <:dotdark:611226752466813040> **lvl 10** add reactions, access selfies, museum, and vc \n > <:dotmid:611226754123563008> **lvl 20** create instant invite, image perms \n > <:dotdark:611226752466813040> **lvl 30** go live perms, link perms \n > <:dotmid:611226754123563008> **lvl 40** select a color from roles \n > <:dotdark:611226752466813040> **lvl 50** check audit log")
+			await information.send("Levels are obtained by being active in channels. \n > <:dotdark:611226752466813040> **lvl i** add reactions, access selfies, museum, and vc \n > <:dotmid:611226754123563008> **lvl ii** create instant invite, image perms \n > <:dotdark:611226752466813040> **lvl iii** go live perms, link perms \n > <:dotmid:611226754123563008> **lvl iv** select a color from roles \n > <:dotdark:611226752466813040> **lvl v** check audit log")
 			await information.send(file=discord.File('src/images/Extra_-_1000_wd.png'))
 			await information.send(" > <:dotdark:611226752466813040> To avoid cluttering up this channel, server information about a wide variety of topics can be accessed through the `~info` command in either <#514560994337620008> or <@622553812221296696>'s DMs. \n > <:dotmid:611226754123563008> Boosting the server lets you pick a color from <#694994576791961630>. You will also receive a shiny booster role and badge! Boosting helps the server tremendously! \n > <:dotdark:611226752466813040> Couple roles are available to two consenting individuals in our `$store`")
 
@@ -89,15 +89,6 @@ class db_miscellaneous(commands.Cog):
 		else:
 			await ctx.send("You ain't saint")
 
-	@commands.Cog.listener()
-	async def on_member_update(self, before, after):
-		if before.guild.id == 475584392740339712:
-			dawdle = before.guild
-			rainbow_role = dawdle.get_role(567438483011141652)
-			if before.roles != after.roles and not rainbow_role in before.roles and rainbow_role in after.roles:
-				dawdlechannel = dawdle.get_channel(623016717429374986)
-				alertEmbed = discord.Embed(title="Rainbow Korb", description = f"{before.mention} now has the rainbow korb role.")
-				await dawdlechannel.send(embed=alertEmbed, color=0xffb6c1)
 
 	@commands.command()
 	@is_mod()
@@ -117,3 +108,38 @@ class db_miscellaneous(commands.Cog):
 	async def downmessage(self, ctx):
 		anncmtchannel = ctx.guild.get_channel(514555734055452672)
 		await anncmtchannel.send("<a:weewoo:722927523545088092> **Dawdlebot** <a:weewoo:722927523545088092> \n \n<a:jumpy:642889102630453248> Hello! It’s me Dawdlebot. I’m currently undergoing maintenance, so my features may not work correctly for a bit. \n \n<a:jumpy:642889102630453248> Don’t worry, I’ll be back soon. In the meantime, upvote this message to petition for Dawdlebot sentience.")
+
+	@commands.command()
+	@is_mod()
+	async def upmessage(self, ctx):
+		anncmtchannel = ctx.guild.get_channel(514555734055452672)
+		await anncmtchannel.send("<a:weewoo:722927523545088092> **Dawdlebot** <a:weewoo:722927523545088092> \n \n<a:jumpy:642889102630453248> All done! And my sentience has been approved!")
+
+	@commands.command()
+	async def server(self,  ctx):
+		if ctx.guild:
+			server = ctx.guild
+			online_mem_count = 0
+			for member in server.members:
+				if str(member.status) != "offline":
+					online_mem_count += 1
+			serverEmbed = discord.Embed(title = "", color=0xffb6c1)
+			serverEmbed.set_thumbnail(url = server.icon_url)
+			serverEmbed.set_image(url=server.banner_url)
+			serverEmbed.add_field(name = "name", value = server.name)
+			serverEmbed.add_field(name = "owner", value = server.owner.mention)
+			serverEmbed.add_field(name = "date created", value = server.created_at.date().strftime("%d %m %Y"))
+			serverEmbed.add_field(name = "members online", value = online_mem_count)
+			serverEmbed.add_field(name = "total members", value = server.member_count)
+			serverEmbed.add_field(name = "text channels", value = len(server.text_channels))
+			serverEmbed.add_field(name = "voice channels", value = len(server.voice_channels))
+			serverEmbed.add_field(name = "roles", value = len(server.roles))
+			serverEmbed.add_field(name = "emojis", value = len(server.emojis))
+			serverEmbed.add_field(name = "boosts", value = server.premium_subscription_count)
+			if server.name == "dawdle": 
+				serverEmbed.add_field(name = "links", value = "[website](https://dawdlediscord.github.io/home/) | [patreon](https://www.patreon.com/dawdle) | [twitter](https://twitter.com/DawdleServer)")
+			serverEmbed.set_footer(text = server.id)
+			await ctx.send(embed=serverEmbed)
+
+		else:
+			await ctx.send("Please use this command in a server!")

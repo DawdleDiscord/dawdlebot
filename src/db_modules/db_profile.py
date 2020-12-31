@@ -52,7 +52,7 @@ class db_profile(commands.Cog):
 		await ctx.send(embed=profileEmbed)
 	@profile.error
 	async def profile_error(self, ctx, error):	
-		await ctx.send("The banner url for this profile is invalid. Use `editbanner` to fix it and be sure to include the `https://`")
+		await ctx.send("Either your \"about\" section is too long (more than 1024 characters) or the banner url for this profile is invalid. Use `editprofile` or `editbanner` to fix it and be sure to include the `https://`")
 
 	@commands.command()
 	@is_mod()

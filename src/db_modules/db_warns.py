@@ -120,25 +120,29 @@ class db_warns(commands.Cog):
 	@commands.command()
 	@is_mod()
 	async def editwarning(self, ctx, member : SmartMember, number : int):
-		counter = 1
+		counter = 0
 		for warnIt in range(len(self.all_warns)):
-			if self.all_warns[warnIt]["member"] == member.id and number == counter:
-				await ctx.send("Reply with updated context.")
-				def check_response(m):
-					return  m.author == ctx.author and m.channel == ctx.channel
-				try: 
-					context_resp = await ctx.bot.wait_for('message', check=check_response, timeout = 180.0)
-				except asyncio.TimeoutError:
-					await ctx.send("Response timed out, update canceled.")
-				else:
-					if context_resp.content.lower() == "cancel":
-						await ctx.send("update canceled.")
+			if self.all_warns[warnIt]["member"] == member.id:
+				counter += 1
+				if number == counter:
+					await ctx.send("Reply with updated context.")
+					def check_response(m):
+						return  m.author == ctx.author and m.channel == ctx.channel
+					try: 
+						context_resp = await ctx.bot.wait_for('message', check=check_response, timeout = 180.0)
+					except asyncio.TimeoutError:
+						await ctx.send("Response timed out, update canceled.")
 					else:
-						self.all_warns[warnIt]["context"] = context_resp.content
-						warn_embed = await self.get_warn_embed(ctx, self.all_warns[warnIt])
-						self.save_warnings()
-						await ctx.send(embed=warn_embed)
-			counter += 1
+						if context_resp.content.lower() == "cancel":
+							await ctx.send("update canceled.")
+						else:
+							self.all_warns[warnIt]["context"] = context_resp.content
+							warn_embed = await self.get_warn_embed(ctx, self.all_warns[warnIt])
+							self.save_warnings()
+							await ctx.send(embed=warn_embed)
+					break				
+		if counter < number:
+			await ctx.send(f"This member only has {counter} warnings.")
 
 	@commands.command(aliases = ["delwarning"])
 	@is_mod()
