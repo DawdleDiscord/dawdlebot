@@ -18,7 +18,6 @@ def main():
 
 	token = os.getenv('dawdletoken')
 
-
 	bot.add_cog(db_birthdays(bot))
 	bot.add_cog(db_moderation(bot))
 	bot.add_cog(db_qotd(bot))
@@ -61,7 +60,6 @@ def main():
 		await bot.logout()
 
 	bot.run(token)
-
 
 if __name__ == '__main__':
 
