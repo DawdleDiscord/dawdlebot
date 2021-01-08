@@ -5,6 +5,7 @@ import datetime
 from .db_converters import SmartMember,SmartRole
 import asyncio
 import json
+import typing
 
 class db_roles(commands.Cog):
 
@@ -131,9 +132,12 @@ class db_roles(commands.Cog):
 		await ctx.send(embed=returnEmbed)
 
 	@roles.command()
-	async def members(self, ctx, *,role : SmartRole):
+	async def members(self, ctx,role : SmartRole, ment : typing.Optional[bool] = True):
 		if len(role.members) > 0:
-			member_mentions = (mem.mention for mem in role.members)
+			if ment:
+				member_mentions = (mem.mention for mem in role.members)
+			else:
+				member_mentions = (str(mem) for mem in role.members)
 			returnEmbed = discord.Embed(title = f"Members of `{role}` role", description ="\n".join(member_mentions), color = 0xffb6c1)
 		else:
 			returnEmbed = discord.Embed(title = f"No members with `{role}` role.", color = 0xffb6c1)

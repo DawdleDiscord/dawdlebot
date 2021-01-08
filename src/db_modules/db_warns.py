@@ -25,8 +25,14 @@ class db_warns(commands.Cog):
 		else:
 			member_name = await self.bot.fetch_user(current_warn["member"])
 			warn_embed.add_field(name = "member", value = member_name)
-		warn_embed.add_field(name = "rule", value = current_warn["rule"])			
-		warn_embed.add_field(name = "context", value = current_warn["context"])
+		if current_warn["rule"]: 
+			warn_embed.add_field(name = "rule", value = current_warn["rule"])			
+		else:
+			warn_embed.add_field(name = "rule", value = "[none given]")
+		if current_warn["context"]:
+			warn_embed.add_field(name = "context", value = current_warn["context"])
+		else:
+			warn_embed.add_field(name = "context", value = "[none given]")
 		if ctx.guild and ctx.guild.get_member(current_warn["mod"]) is not None:
 			warn_embed.add_field(name = "mod", value = ctx.guild.get_member(current_warn["mod"]).mention)
 		else:
@@ -59,7 +65,10 @@ class db_warns(commands.Cog):
 			else:
 				current_warn["member"]  = member.id
 				current_warn["rule"]    = rule
-				current_warn["context"] = context_resp.content
+				if context_resp.content:
+					current_warn["context"] = context_resp.content
+				else:
+					current_warn["context"] = "[none given]"
 				current_warn["date"]    = str(datetime.date.today())
 				current_warn["mod"]     = ctx.author.id
 				if len(context_resp.attachments) > 0:
@@ -77,7 +86,7 @@ class db_warns(commands.Cog):
 					admonchannel = ctx.guild.get_channel(527899554184691715)
 					await admonchannel.send(f"```{member} was warned by {ctx.author.name} (Rule {rule})```")
 					try:
-						await member.send(f"You have been warned in Dawdle for Rule {rule}. If you would like more information, you can contact staff by responding with`~report <your message>`.")
+						await member.send(f"You have been warned in Dawdle for Rule {rule}. If you would like more information, you can contact staff by responding with `~report <your message>`.\n \nUse `~mywarnings` to see all of your warnings.")
 					except:
 						await ctx.send(f"I could not DM {member.mention}")
 
@@ -85,6 +94,7 @@ class db_warns(commands.Cog):
 	@is_mod()
 	async def warnings(self, ctx, member : SmartMember, warn_type : typing.Optional[str] = ""):
 		counter = 1
+		officialcounter = 1
 		is_any = False
 		for warn in self.all_warns:
 			if warn["member"] == member.id:
@@ -96,7 +106,12 @@ class db_warns(commands.Cog):
 					continue
 				is_any = True
 				warn_embed = await self.get_warn_embed(ctx, warn)
-				await ctx.send(content = f"**Warn {counter}**", embed = warn_embed)
+				if warn["rule"].lower() == "verbal":
+					warncount = f"**Warn {counter} [verbal]**"
+				else:
+					warncount = f"**Warn {counter} [Official: {officialcounter}]**"
+					officialcounter += 1
+				await ctx.send(content = warncount, embed = warn_embed)
 				counter += 1
 		if not is_any:
 			await ctx.send(f"{member} has no {warn_type} warnings.")
@@ -153,7 +168,7 @@ class db_warns(commands.Cog):
 			if self.all_warns[warnIt]["member"] == member.id:
 				if number == counter:
 					warn_embed = await self.get_warn_embed(ctx, self.all_warns[warnIt])
-					await ctx.send(content = "Are you sure you want to delete this warnining? (yes/no).", embed = warn_embed)
+					await ctx.send(content = "Are you sure you want to delete this warning? (yes/no).", embed = warn_embed)
 					def check_response(m):
 						return  m.author == ctx.author and m.channel == ctx.channel and (m.content.lower() == "yes" or m.content.lower() == "no")
 					try: 
