@@ -71,11 +71,14 @@ class db_verification(commands.Cog):
 			message = await verifchannel.fetch_message(payload.message_id)
 			reactor = dawdle.get_member(payload.user_id)
 
-			if message.mentions and "verify" in message.content:
+			if message.mentions and "verify" in message.content and message.author.bot and reactor.id != self.bot.user.id:
 
-				for react in message.reactions:
+				#print("this is a verification")
 
-					if react.count == 2:
+				for react in message.reactions:	
+
+					#if react.count == 2:
+					if react.emoji == payload.emoji:
 						user = message.mentions[0]
 
 						if str(react.emoji) == '<:pinkcheck:609771973341610033>':

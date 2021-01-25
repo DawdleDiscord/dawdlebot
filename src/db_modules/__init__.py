@@ -19,6 +19,7 @@ from .db_miscellaneous    import db_miscellaneous
 from .db_inventory        import db_inventory
 from .db_profile          import db_profile
 from .db_warns            import db_warns
+from .db_streaks          import db_streaks
 
 #converters
 from .db_converters       import SmartMember

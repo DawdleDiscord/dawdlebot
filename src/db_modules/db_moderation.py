@@ -106,25 +106,26 @@ class db_moderation(commands.Cog):
 			await ctx.send('Parlor has been unlocked for unverified members. Use \`~lockdown lock\` to undo this.')
 			await foyer.send('The main chat has been unlocked for unverified members.')
 
-	@commands.command()
+	@commands.command(aliases = ["mail"])
 	async def report(self, ctx, *, report_text : str):
+		report_or_mail = ctx.invoked_with
 		dawdle = self.bot.get_guild(475584392740339712)
 		verifChannel = dawdle.get_channel(623016717429374986)
 		staffrole = dawdle.get_role(519616340940554270)
 		if not ctx.message.guild:
-			embedReport = discord.Embed(title='Report',description = "", color=0xffb6c1,timestamp = datetime.datetime.utcnow())
-			embedReport.add_field(name="Reporter",value=ctx.message.author.mention,inline=False)
+			embedReport = discord.Embed(title=report_or_mail,description = "", color=0xffb6c1,timestamp = datetime.datetime.utcnow())
+			embedReport.add_field(name=report_or_mail+"er", value=ctx.message.author.mention,inline=False)
 			embedReport.add_field(name="Content",value=report_text,inline=False)
 			embedReport.set_footer(text=ctx.message.author.id)
-			repMess = await verifChannel.send(content=f'{staffrole.mention} Report',embed=embedReport, )
+			repMess = await verifChannel.send(content=f'{staffrole.mention} '+report_or_mail,embed=embedReport, )
 			for a in ctx.message.attachments:
-				embedReport = discord.Embed(title='Report',description = "", color=0xffb6c1,timestamp = datetime.datetime.utcnow())
-				embedReport.add_field(name="Reporter",value=ctx.message.author.mention,inline=False)
+				embedReport = discord.Embed(title=report_or_mail, description = "", color=0xffb6c1,timestamp = datetime.datetime.utcnow())
+				embedReport.add_field(name=report_or_mail+"er",value=ctx.message.author.mention,inline=False)
 				embedReport.set_image(url=a.url)
 				embedReport.set_footer(text=ctx.message.author.id)
-				await verifChannel.send(content=f'{staffrole.mention} Report',embed=embedReport)
+				await verifChannel.send(content=f'{staffrole.mention} '+report_or_mail,embed=embedReport)
 			try:
-				await ctx.message.author.send('Your report has been sent to staff.')
+				await ctx.message.author.send('Your '+report_or_mail+' has been sent to staff.')
 			except:
 				pass
 
@@ -132,6 +133,8 @@ class db_moderation(commands.Cog):
 	async def report_error(self, ctx,error):
 		if isinstance(error,commands.errors.MissingRequiredArgument):
 			await ctx.send('It looks like you are sending a report. You need text after the `~report`.')
+		else:
+			print(error)
 
 
 	async def cog_command_error(self, ctx, error):

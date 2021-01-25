@@ -17,14 +17,14 @@ class db_profile(commands.Cog):
 				self.profile_dict = {}
 
 	@commands.command()
-	@in_dawdle()
 	async def profile(self, ctx, member : typing.Optional[SmartMember]):
+		dawdle = self.bot.get_guild(475584392740339712)
 		if member is None:
-			member = ctx.author
+			member = dawdle.get_member(ctx.author.id)		
 		profileEmbed = discord.Embed(title = member.name, color = 0xffb6c1)
 		profileEmbed.set_thumbnail(url=member.avatar_url)
 		profileEmbed.add_field(name = "name", value = member.mention)
-		introchannel = ctx.guild.get_channel(514555898648330260)
+		introchannel = dawdle.get_channel(514555898648330260)
 		foundIntro = False
 		async for mess in introchannel.history(limit=None):
 			if mess.author.id == member.id:
@@ -51,7 +51,8 @@ class db_profile(commands.Cog):
 
 		await ctx.send(embed=profileEmbed)
 	@profile.error
-	async def profile_error(self, ctx, error):	
+	async def profile_error(self, ctx, error):
+		print(error)	
 		await ctx.send("Either your \"about\" section is too long (more than 1024 characters) or the banner url for this profile is invalid. Use `editprofile` or `editbanner` to fix it and be sure to include the `https://`")
 
 	@commands.command()
