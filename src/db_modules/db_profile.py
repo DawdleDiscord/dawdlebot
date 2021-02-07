@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
-from .db_converters import SmartMember,SmartRole
-from .db_checks import is_mod,in_dawdle
+from .db_converters import SmartMember,SmartRole,DawdleMember
+from .db_checks import is_mod,in_dawdle,is_member
 import json,typing
 import asyncio
 
@@ -17,7 +17,8 @@ class db_profile(commands.Cog):
 				self.profile_dict = {}
 
 	@commands.command()
-	async def profile(self, ctx, member : typing.Optional[SmartMember]):
+	@is_member()
+	async def profile(self, ctx, member : typing.Optional[DawdleMember]):
 		dawdle = self.bot.get_guild(475584392740339712)
 		if member is None:
 			member = dawdle.get_member(ctx.author.id)		

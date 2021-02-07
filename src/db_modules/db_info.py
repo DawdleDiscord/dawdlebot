@@ -80,6 +80,7 @@ class db_info(commands.Cog):
 	async def info(self, ctx, topic :  typing.Optional[str],*, subtopic : typing.Optional[str]):
 		topickey = None
 		subtopickey = None
+		usemessage = ""
 		if topic:
 			topickey = self.lowercase_keys_get(self.info_dict, topic)
 		if topickey and subtopic:
@@ -128,7 +129,7 @@ class db_info(commands.Cog):
 		await ctx.send(embed=infoEmbed)
 		testserver = self.bot.get_guild(622553382279708672)
 		infotrackchannel = testserver.get_channel(713113119861375007)
-		#await infotrackchannel.send(usemessage)
+		if usemessage: await infotrackchannel.send(usemessage)
 
 	@commands.group()
 	async def editinfo(self, ctx):

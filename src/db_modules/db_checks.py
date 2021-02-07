@@ -15,10 +15,7 @@ def is_mod():
 
 def is_member():
 	async def is_member_predicate(ctx):
-		for guild in ctx.bot.guilds:
-			if guild.name == 'dawdle':
-				dawdle = guild
-				break
+		dawdle = ctx.bot.get_guild(475584392740339712)
 		if dawdle.get_member(ctx.author.id):
 			return True
 		else:
