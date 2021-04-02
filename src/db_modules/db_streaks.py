@@ -99,19 +99,21 @@ class db_streaks(commands.Cog):
 	@daily.command()
 	@is_mod()
 	async def clean(self, ctx):
-		cleanList = []
-		for memid in self.streak_dict.keys():
-			if not ctx.guild.get_member(int(memid)):
-				cleanList.append(memid)
-		if len(cleanList) > 0:
-			for memid in cleanList:
-				del self.streak_dict[memid]
-			with open("src/data/streak.json", "w") as json_file:
-				json.dump(self.streak_dict, json_file)
+		async with ctx.typing():
+			cleanList = []
+			for memid in self.streak_dict.keys():
+				if not ctx.guild.get_member(int(memid)) or not self.check_daily(memid):
+					cleanList.append(memid)
+
+
+			if len(cleanList) > 0:
+				for memid in cleanList:
+					testuser = await self.bot.fetch_user(memid)
+					del self.streak_dict[memid]
+				with open("src/data/streak.json", "w") as json_file:
+					json.dump(self.streak_dict, json_file)
 
 		await ctx.send(f"Cleaned {len(cleanList)} members.")
-
-
 
 	@daily.command()
 	@is_mod()
