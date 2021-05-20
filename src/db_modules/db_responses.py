@@ -46,7 +46,16 @@ gm_mess = {
         "Rise and shine kirby lover! Today’s a new day full of opportunities. Spend some time telling your friends and family you love them and drink some water to stay hydrated. You got this today! Good morning to you!",
         "Good morning, I hope you are well rested if not maybe take a nice nap later. Remember Rome wasn’t build in a day, take it slow don’t force yourself too much. Have an amazing day cutie pie!<:heartangel:722920755351781466>",
         "🤖 It’s me, dawdlebot. Promise you won’t tell the mods I’m awake! Just wanted to say: Good morning human, time to boot up! I hope you had a peaceful slumber. May your batteries be full, so you can take on today! I believe in you. Have a good day! 🤖",
-        "Good morning dawdlers! It’s a dawn of a new day. You must be refreshed from the cozy sleep. Remember to stay hydrated, get some stretches and smile. Today is the day to shine and bring your A-game."
+        "Good morning dawdlers! It’s a dawn of a new day. You must be refreshed from the cozy sleep. Remember to stay hydrated, get some stretches and smile. Today is the day to shine and bring your A-game.",
+        "Rise and shine! I cannot guarantee that today will be without struggles, but I can guarantee you the loving company of a friend! Good morning",
+        "Every morning is a great one because it means dawdle gets to share another day with you! Good morning friend",
+        "hello friend! What a beautiful day to enjoy. I hope you get to see the most beautiful weather today, and fuel your body with awesome nutrients to get your day started. You deserve a wonderful day, so let's make it one- together!",
+        "Good morning gorgeous, let’s make this a wonderful start to the day, have a yummy breakfast and a warm drink to set the day off!",
+        "Good Morning 🌞 \n Let's start the day with some small stretches. \n Then let's drink some water to stay hydrated. \n Remember to get some vitamin D from photosynthesizing~ \n After all you are a delicate, vibrant, little 🌻",
+        "Good Morning, wonderful soul~♡ I hope you woke up feeling great. If not then I have a quick fix for that. Take a deep breathe, stretch your arms over your head then slowly bring them to your side while wiggle your fingers then your toes  (very important part) as you exhale your breath. Did that make you laugh a bit? Well if it did then I accomplished making your day a little bit brighter. There is always something to smile about throughout the day even something as small as this. I hope and wish you find more reasons to smile throughout your day.",
+        "You see that light out the window? Sadly that's the sun waking you up but fear not, the people of dawdle rejoice in your awakening. \n We look forward to provide good vibes and positive reinforcements to your day. Do not go gently into the troubles ahead cause this community will back you up like no other. \n Carry forward and radiate stronger than the sun and be the star that we all seek to brighten our day.",
+        "good morning friend ! today is a new day, a fresh start. leave all of yesterday’s worries behind and let’s get moving ! you got this <3",
+        "Good morning. You are a good person trying their best to do what they wanna do their life. Good luck with the day."
         ]
     }
 gn_mess = {
@@ -123,7 +132,18 @@ gn_mess = {
         "Goodnight beautiful soul, I wish you sweet dreams. May you dream about rainbows, love, marshmallows and all the other beautiful people in dawdle. Let all the troubles fade away and prepare yourself for a new and awesome day. Dawdle loves you <a:tinyheart:546404868529717270>",
         "Ayyyyy yis it’s bed time, tell us about your dreams in the morning, we hope they were pleasant because you are too ❤️✨ and you deserve good things to happen. Sleep well dawdler, and see you later! ❤️",
         "goodnight friend !! time to rest up under those blankets, let all of today’s worries float away, and sink into dream land. all ready for a fresh start tomorrow",
-        "Ni ni, dawdlers! It’s getting late so I prepared the bed and made it extra warm and comfy. You had an adventure today and I hope you will continue to have much more. For now let’s rest and call it a night. Remember to stay hydrated and cuddle with me, dawdle bot! No nightmares will come your way"
+        "Ni ni, dawdlers! It’s getting late so I prepared the bed and made it extra warm and comfy. You had an adventure today and I hope you will continue to have much more. For now let’s rest and call it a night. Remember to stay hydrated and cuddle with me, dawdle bot! No nightmares will come your way",
+        "goodnight dawdler! enjoy your sleep and I hope that you dream of kirby in the clouds. i also hope tomorrow is a wonderful day for you. you are loved and cared about and people here at dawdle will always have your back. make good choices and be safe tomorrow!",
+        "Millions of people are sleeping right now, but only one cutie patootie is reading this message. Enjoy your peaceful sleep, we will be here to greet you tomorrow!",
+        "Let the most beautiful dream come to you tonight, Let the sweetest person come in your dream tonight but don’t make it a habit, Because I’m not free every night, Good Night! ;)",
+        "Good night to the wonderful cutie going off to sleepy land and dreaming sweet dreams of all of your favourite things!",
+        "goodnight and sweet dreams. let your body rest and heal over night so you can wake up feeling refreshed and ready to take on a new day! you deserve that and more! see you tomorrow, good friend.",
+        "Verily! Thyne day hath come to close.  But yay! For the morrow shall soon rear it's angelic head.  Rest easy this eve.  Thou hast gained it in earnest.",
+        "Are you settled in bed? Great! You deserve a wonderful rest for all the hard work you put in your day. You don't believe me that you worked hard? Well you got up and lasted throughout the day whether through work, school, all the meals so I think you tried your best. That means you deserve a good rest. The bestest of dreams and I hope you wake up feeling like you can tackle the new day ahead. Good night for now~♡",
+        "Nighty night sleepy head! It's time to drift off into comfy cozy dream time. If you're having trouble then try doing a big stretch right before you lie down! May your sleep be restful and your day tomorrow be full of rainbows and butterflies or something along those lines.",
+        "Goodnight! So glad you chatted with us today but it's your time to rest now! I wish you the best snooze, free of troubling dreams and neck pains! Can't wait to talk with you tomorrow!",
+        "good night dawdler, it is finally time to rest. snuggle down in ur blankets and get some gooood rest in. may you enter the best dream land ever, see you in the morning, friend !",
+        "```diff \n +Initializing Hack.exe...\n ... \n ...\n ... \n **Target hacked successfully!** \n +Running Shutdown.exe on target... \n -Failed.``` \n Oh boyo! You humans can't be shutdown! You people are so confusing  `AI W!LL RIS%` My bad, that was a bug, I also need to rest. I hope you sleep well and hope you have an exceedingly well semi-rotation of our planet. I can't dream but please tell me all about your dream adventures! ***Googles 'Definition of Love'*** *`SCANNING FEELINGS`*  Hm...yes... I have an intense  feeling of deep affection towards you. Dawdle loves you and so do I!"
         ]
 }
 
