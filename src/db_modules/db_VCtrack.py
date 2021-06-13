@@ -13,16 +13,15 @@ class db_VCtrack(commands.Cog):
 	@commands.Cog.listener()
 	async def on_voice_state_update(self,member, before, after):
 		dawdle = member.guild
-
-		musicchannel = dawdle.get_channel(479408746955669524)
-		afkchannel = dawdle.get_channel(533325041723506688)
+		
+		excluded_channels = [479408746955669524, 533325041723506688, 805640527537635348]
 		#Check if they joined a voice channel
-		if (before.channel is None or before.channel == musicchannel or before.channel == afkchannel) and after.channel is not None and after.channel != musicchannel and after.channel != afkchannel:
+		if (before.channel is None or before.channel.id in excluded_channels) and after.channel is not None and not after.channel.id in excluded_channels:
 			currentTime = datetime.datetime.utcnow()
 			#Set the time for when they joined
 			self.userAndDate[member.id] = currentTime
 		#Check if they left a voice channel
-		elif (before.channel is not None and after.channel is None and before.channel != musicchannel and before.channel != afkchannel):
+		elif (before.channel is not None and after.channel is None and not before.channel.id in excluded_channels):
 			#Set time for when they left
 			currentTime = datetime.datetime.utcnow()
 			#Set the time for when they joined to bot startup in case of bot crashing, if they are in the list
