@@ -2,6 +2,7 @@ import discord
 import json
 import datetime
 from .db_checks import is_mod
+import typing
 
 from discord.ext import commands,tasks
 
@@ -29,10 +30,14 @@ class db_qotd(commands.Cog):
 		await ctx.send('Question added!')
 
 	@qotd.command()
-	async def get(self, ctx, num : int):
+	async def get(self, ctx, num : typing.Optional[int]):
 		with open('src/data/qotd.json', 'r') as json_file_r1:
 			qotdlist = json.load(json_file_r1)
-		qotdReq = qotdlist[:num]
+		if num:
+			qotdReq = qotdlist[:num]
+		else:
+			num = len(qotdlist)
+			qotdReq = qotdlist
 		qotdReqStr = ''
 		nDone = False
 		for n in range(num):
@@ -46,7 +51,7 @@ class db_qotd(commands.Cog):
 	@get.error
 	async def get_error(self,ctx, error):
 		if isinstance(error,commands.errors.CommandInvokeError):
-			await ctx.send("You don't have any questions set up!")
+			await ctx.send("Error, you may not have any questions set up!")
 
 	@qotd.command()
 	async def remove(self, ctx, num : int):

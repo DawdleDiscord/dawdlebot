@@ -35,13 +35,13 @@ class db_info(commands.Cog):
 		keyword2 = keyword2.lower()
 		for key in self.info_dict.keys():
 			for subkey in self.info_dict[key].keys():
-				if keyword1 in self.info_dict[key][subkey].lower() or keyword2 in self.info_dict[key][subkey].lower():
+				if keyword1 in self.info_dict[key][subkey].lower() or keyword2 in self.info_dict[key][subkey].lower() or keyword1 in subkey.lower():
 					search_results.append([key, subkey])
 		if len(search_results) == 0:
 			return None
 			
 		elif len(search_results) == 1:
-			infoEmbed = discord.Embed(title = f"`{search_results[0][0]} : {search_results[0][1]}`", description = self.info_dict[key][search_results[0][1]], color=0xffb6c1)
+			infoEmbed = discord.Embed(title = f"`{search_results[0][0]} : {search_results[0][1]}`", description = self.info_dict[search_results[0][0]][search_results[0][1]], color=0xffb6c1)
 			return infoEmbed
 		else:
 			counter = 1
@@ -248,6 +248,6 @@ class db_info(commands.Cog):
 		else:
 			await ctx.send('Topic not found.')
 
-	async def cog_command_error(self, ctx, error):
-		print(error)
-		await ctx.send(f'Error: {error}')
+	#async def cog_command_error(self, ctx, error):
+	#	print(error)
+	#	await ctx.send(f'Error: {error}')
