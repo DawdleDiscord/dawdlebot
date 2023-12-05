@@ -1,7 +1,7 @@
 import discord
 from .db_checks import is_mod
 from discord.ext import commands,tasks
-import typing
+import time
 from .db_converters import SmartMember
 import asyncio
 
@@ -64,53 +64,52 @@ class db_members(commands.Cog):
 
 			await ctx.send('Done checking for intros and roles')
 	@members.command()
-	async def clean(self, ctx, member : typing.Optional[SmartMember]):
+	async def clean(self, ctx):
 		if ctx.guild:
 			dawdle = ctx.guild
-			channel_list = [514555898648330260, 514556004822941696, 564613278874075166, 514556101052858378]#, 600720406902734858]
+			message_clean_dict = {
+				514555898648330260 : [], #intro
+				514556004822941696 : [], #selfies
+				514556101052858378 : []  #animals
+			}
 			to_send = ""
 			delete_any = False
-			if not member:
-				await ctx.send("Beep boop calculating how much to delete...")
-				def is_member(message):
-					return not isinstance(message.author,discord.Member)
-				for ch_id in channel_list:
-					ndelete = 0
-					channel = dawdle.get_channel(ch_id)
-					async for mess in channel.history(limit=None):
-						if is_member(mess) == True:
-							ndelete += 1
-					if ndelete > 0: delete_any = True
-					to_send += f"Will delete {ndelete} messages from {channel.mention}\n\n"
-				if delete_any:
-					to_send += f"{ctx.author.mention}, do I proceed?"
-					await ctx.send(to_send)
-					def delete_response(m):
-						return m.author == ctx.author and m.channel == ctx.channel and (m.content.lower() == "yes" or m.content.lower() == "no")
-					try:
-						response = await self.bot.wait_for("message",  check = delete_response, timeout = 60.0)
-					except asyncio.TimeoutError:
-						await ctx.send('Response timed out.')
-					else:
-						if response.content.lower() == "yes":
-							async with ctx.typing():
-								for ch_id in channel_list:
-									channel = dawdle.get_channel(ch_id)
-									deleted = await channel.purge(limit=None, check = is_member)
-									await ctx.send(f'Purged {len(deleted)} posts in {channel.mention}')
-								await ctx.send('Done cleaning.')
-						else:
-							await ctx.send("Clean canceled.")
+			await ctx.send("Beep boop calculating how much to delete...")
+			def is_not_member(message) -> bool:
+				return not isinstance(message.author,discord.Member)
+			for ch_id, messages in message_clean_dict.items():
+				channel = dawdle.get_channel(ch_id)
+				async for mess in channel.history(limit=None):
+					if is_not_member(mess):
+						messages.append(mess)
+						delete_any = True
+				to_send += f"Will delete {len(messages)} messages from {channel.mention}\n\n"
+			if delete_any:
+				to_send += f"{ctx.author.mention}, do I proceed?"
+				await ctx.send(to_send)
+				def delete_response(m):
+					return m.author == ctx.author and m.channel == ctx.channel and (m.content.lower() == "yes" or m.content.lower() == "no")
+				try:
+					response = await self.bot.wait_for("message",  check = delete_response, timeout = 60.0)
+				except asyncio.TimeoutError:
+					await ctx.send('Response timed out.')
 				else:
-					await ctx.send("Nothing for me to clean :(")
-				
+					if response.content.lower() == "yes":
+						async with ctx.typing():
+							for ch_id, messages in message_clean_dict.items():
+								channel = dawdle.get_channel(ch_id)
+								try:
+									for message in messages:
+										await message.delete()
+										time.sleep(3)
+								except Exception as e:
+									await ctx.send(f'Failed to delete posts in {channel.mention}. Reason: {e}')
+								else:
+									await ctx.send(f'Purged {len(messages)} posts in {channel.mention}')
 
+							await ctx.send('Done cleaning.')
+					else:
+						await ctx.send("Clean canceled.")
 			else:
-				def is_user(message):
-					return message.author == member
-				for ch_id in channel_list:
-					channel = dawdle.get_channel(ch_id)
-					deleted = await channel.purge(limit=None, check = is_user)
-					if len(deleted) > 0:
-						await ctx.send(f'Purged {len(deleted)} posts in {channel.mention} from {member.mention}')
-				await ctx.send('Done cleaning')
+				await ctx.send("Nothing for me to clean :(")
+				

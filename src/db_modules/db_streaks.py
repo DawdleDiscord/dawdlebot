@@ -88,7 +88,7 @@ class db_streaks(commands.Cog):
 		for strk in sorted_lb:
 			member = ctx.guild.get_member(int(strk[0]))
 			if member and strk[1]["streak"] > 0 and self.check_daily(member.id):
-				lb_str = f"[{rank}] {member}".ljust(24)
+				lb_str = f"[{rank}] {member.name}".ljust(24)
 				lb_str = lb_str+str(strk[1]["streak"])
 				lb_str_list.append(lb_str)
 				rank += 1

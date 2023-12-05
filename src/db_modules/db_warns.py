@@ -19,14 +19,14 @@ class db_warns(commands.Cog):
 				self.all_warns = []
 
 	async def get_warn_embed(self, ctx, current_warn):
-		warn_embed = discord.Embed(title = "Warning", color=0xffb6c1)
+		warn_embed = discord.Embed(title = "Warning")
 		if ctx.guild and ctx.guild.get_member(current_warn["member"]) is not None:				
 			warn_embed.add_field(name = "member", value = ctx.guild.get_member(current_warn["member"]).mention)
 		else:
 			member_name = await self.bot.fetch_user(current_warn["member"])
 			warn_embed.add_field(name = "member", value = member_name)
 		if current_warn["rule"]: 
-			warn_embed.add_field(name = "rule", value = current_warn["rule"])			
+			warn_embed.add_field(name = "rule", value = current_warn["rule"])	
 		else:
 			warn_embed.add_field(name = "rule", value = "[none given]")
 		if current_warn["context"]:
@@ -62,6 +62,8 @@ class db_warns(commands.Cog):
 		else:
 			if context_resp.content.lower() == "cancel":
 				await ctx.send("Warn canceled.")
+			elif len(context_resp.content) > 1024:
+				await ctx.send("Context must be 1024 characters or less.")
 			else:
 				current_warn["member"]  = member.id
 				current_warn["rule"]    = rule
@@ -93,11 +95,16 @@ class db_warns(commands.Cog):
 	@commands.command()
 	@is_mod()
 	async def warnings(self, ctx, member : SmartMember, warn_type : typing.Optional[str] = ""):
+		warncolors = { "official" : discord.Colour.red(), "verbal" : discord.Colour.orange(), "oldverbal" : discord.Colour.gold()}
 		counter = 1
 		officialcounter = 1
 		is_any = False
+		invalid_warnings = []
 		for warn in self.all_warns:
 			if warn["member"] == member.id:
+				if len(warn["context"]) > 1024:
+					invalid_warnings.append(warn)
+					continue
 				if warn_type == "verbal" and warn["rule"].lower() != "verbal":
 					counter += 1
 					continue
@@ -107,14 +114,22 @@ class db_warns(commands.Cog):
 				is_any = True
 				warn_embed = await self.get_warn_embed(ctx, warn)
 				if warn["rule"].lower() == "verbal":
+					if abs((datetime.date.today() - datetime.datetime.strptime(warn["date"], "%Y-%m-%d").date()).days) < 60:
+						warn_embed.color = warncolors["verbal"]
+					else:
+						warn_embed.color = warncolors["oldverbal"] 
 					warncount = f"**Warn {counter} [verbal]**"
 				else:
+					warn_embed.color = warncolors["official"]
 					warncount = f"**Warn {counter} [Official: {officialcounter}]**"
 					officialcounter += 1
 				await ctx.send(content = warncount, embed = warn_embed)
 				counter += 1
 		if not is_any:
 			await ctx.send(f"{member} has no {warn_type} warnings.")
+
+		for invalid in invalid_warnings:
+			self.all_warns.remove(invalid)
 	
 	@commands.command()
 	async def mywarnings(self, ctx):

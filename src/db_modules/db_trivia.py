@@ -11,6 +11,11 @@ from .db_checks import is_mod,in_dawdle
 class db_trivia(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.num1 = "<:white1:1000238100913586238>"
+        self.num2 = "<:white2:1000238403016724621>"
+        self.num3 = "<:white3:1000238399984246815>"
+        self.num4 = "<:white4:1000238396037410847>"
+        self.reactionlist = [self.num1, self.num2, self.num3, self.num4]
 
         with open("src/data/trivia.json", "r") as json_file:
             try:
@@ -51,12 +56,11 @@ class db_trivia(commands.Cog):
             triviaEmbed.add_field(name="Answers", value="\n".join(answer_str_list))
 
             triviaMess = await ctx.send(embed=triviaEmbed)
-            reactionlist = ["<:pinknum:603710351434973200>", "<:pinknum:603710368371703808>", "<:pinknum:603710385752899614>", "<:pinknum:603710402664333333>"]
-            for r in reactionlist:
+            for r in self.reactionlist:
                 await triviaMess.add_reaction(r)
 
             def trivia_check(reaction, user):
-                return str(reaction.emoji) in reactionlist and user == ctx.author
+                return str(reaction.emoji) in self.reactionlist and user == ctx.author
 
             try:
                 reaction, user = await self.bot.wait_for('reaction_add', check = trivia_check, timeout = 15)
@@ -67,7 +71,7 @@ class db_trivia(commands.Cog):
                 await triviaMess.edit(embed=responseEmbed)
                 currentStreak = 0
             else:
-                index = reactionlist.index(str(reaction.emoji))
+                index = self.reactionlist.index(str(reaction.emoji))
                 if answers[index] == self.trivlist[question]["correct"]:
                     responseEmbed = discord.Embed(title = f"<:pinkcheck:609771973341610033> {ctx.author.name} is correct!", color =  0xffb6c1)
                     responseEmbed.add_field(name = "Question", value = question)
@@ -101,7 +105,7 @@ class db_trivia(commands.Cog):
         for strk in sorted_lb:
             member = ctx.guild.get_member(int(strk[0]))
             if member and strk[1] > 0:
-                lb_str = f"[{rank}] {member}".ljust(24)
+                lb_str = f"[{rank}] {member.name}".ljust(24)
                 lb_str = lb_str+str(strk[1])
                 lb_str_list.append(lb_str)
                 rank += 1
@@ -254,12 +258,10 @@ class db_trivia(commands.Cog):
         UI= await ctx.send(embed=embed)
         await UI.add_reaction('<:pinkcheck:609771973341610033>')#('<:pinkcheck:609771973341610033>')
         await UI.add_reaction('<:pinkx:609771973102534687>')#('<:pinkx:609771973102534687>')
-#        await UI.add_reaction('<:AAAAHHH:586561885629841408>')
-        reactionlist = ["<:pinknum:603710351434973200>", "<:pinknum:603710368371703808>", "<:pinknum:603710385752899614>", "<:pinknum:603710402664333333>"]
-        await UI.add_reaction('<:pinknum:603710351434973200>')
-        await UI.add_reaction('<:pinknum:603710368371703808>')
-        await UI.add_reaction('<:pinknum:603710385752899614>')
-        await UI.add_reaction('<:pinknum:603710402664333333>')
+        await UI.add_reaction(self.num1)
+        await UI.add_reaction(self.num2)
+        await UI.add_reaction(self.num3)
+        await UI.add_reaction(self.num4)
         n=1
         while n != 2 : #I'm worried about this, might be worth checking it with Amer [Is there a better way to loop using async or something]
             def react_check(reaction, user):
@@ -304,28 +306,26 @@ class db_trivia(commands.Cog):
                             await ctx.send("Deleted!")
                             await message.delete(delay = 1)
                             n=2
-                        elif (str(k.emoji)) == '<:pinknum:603710351434973200>':
+                        elif (str(k.emoji)) == self.num1:
                             response = await EditAnswer(self, 0, reaction.message, embed) #1
                             self.trivlist[Active]["correct"]= response
                             await reaction.remove(user)
                             break
-                        elif (str(k.emoji)) == '<:pinknum:603710368371703808>': #2
+                        elif (str(k.emoji)) == self.num2: #2
                             response = await EditAnswer(self, 1, reaction.message, embed)
                             self.trivlist[Active]["wrong"][0]= response
                             await reaction.remove(user)
                             break
-                        elif (str(k.emoji)) == '<:pinknum:603710385752899614>': #3
+                        elif (str(k.emoji)) == self.num3: #3
                             response = await EditAnswer(self, 2, reaction.message, embed)
                             self.trivlist[Active]["wrong"][1]= response
                             await reaction.remove(user)
                             break
-                        elif (str(k.emoji)) == '<:pinknum:603710402664333333>': #4
+                        elif (str(k.emoji)) == self.num4: #4
                             response = await EditAnswer(self, 3, reaction.message, embed)
                             self.trivlist[Active]["wrong"][2]= response
                             await reaction.remove(user)
                             break
-#                        elif (str(k.emoji)) == '<:AAAAHHH:586561885629841408>':
-#                            embed.title = reaction.message
 
     @edit.error
     async def trivia_edit_error(self, ctx, error):
